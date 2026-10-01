@@ -1,0 +1,2964 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crónicas Infinitas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Noto+Sans+Runic&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0a08;
+    --panel: #1c1611;
+    --panel-2: #261d15;
+    --border: #4d3c29;
+    --text: #ede3d0;
+    --muted: #a8977c;
+    --gold: #e2b65c;
+    --gold-2: #f7d98f;
+    --gold-soft: #e2b65c33;
+    --rune: #8fdcff;
+    --rune-soft: #8fdcff40;
+    --red: #d65a4e;
+    --green: #7cbc72;
+    --blue: #7ea6da;
+    --radius: 12px;
+    --runic: 'Noto Sans Runic', 'Segoe UI Symbol', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    background:
+      radial-gradient(ellipse at 50% -10%, #3a2a1a 0%, transparent 55%),
+      radial-gradient(ellipse at 50% 120%, #1f1830 0%, transparent 50%),
+      var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+  h1, h2, h3 { font-family: 'Cinzel', serif; letter-spacing: .04em; }
+  h1 {
+    font-weight: 700;
+    letter-spacing: .06em;
+    margin: 0 0 .15em;
+    font-size: clamp(1.7rem, 4vw, 2.6rem);
+    background: linear-gradient(180deg, var(--gold-2), var(--gold) 55%, #9c7430);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 12px #e2b65c55);
+  }
+  h2 { color: var(--gold); font-size: 1.25rem; margin: 0 0 .5em; }
+  h3 { font-size: .85rem; margin: 1.1em 0 .45em; color: var(--muted); text-transform: uppercase; }
+  .muted { color: var(--muted); }
+
+  /* Fondo: brasas y círculo rúnico */
+  #fx-embers { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  .rune-ring-bg {
+    position: fixed; left: 50%; top: 50%; width: min(140vmin, 1100px); height: min(140vmin, 1100px);
+    transform: translate(-50%, -50%); pointer-events: none; z-index: 0; opacity: .07;
+    animation: spin 240s linear infinite;
+  }
+  .rune-ring-bg text, .rune-spinner text { font-family: var(--runic); fill: var(--gold); }
+
+  .screen { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; padding: 22px 16px; }
+  .screen[hidden] { display: none !important; }
+
+  .card {
+    position: relative;
+    background: linear-gradient(180deg, #211912f2, #17120df2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: inset 0 0 0 1px #0009, inset 0 0 40px #0007, 0 12px 40px #000a;
+  }
+  .card::before {
+    content: ''; position: absolute; inset: 5px; border: 1px solid #e2b65c1f;
+    border-radius: calc(var(--radius) - 4px); pointer-events: none;
+  }
+  .card > .corner {
+    position: absolute; font-family: var(--runic); color: var(--gold); opacity: .55;
+    font-size: .8rem; line-height: 1; text-shadow: 0 0 8px var(--gold);
+  }
+  .corner.tl { top: 8px; left: 10px; } .corner.tr { top: 8px; right: 10px; }
+  .corner.bl { bottom: 8px; left: 10px; } .corner.br { bottom: 8px; right: 10px; }
+
+  .rune-divider {
+    font-family: var(--runic); color: var(--gold); opacity: .5; text-align: center;
+    letter-spacing: .6em; font-size: .85rem; margin: 10px 0; user-select: none;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  label { display: block; font-size: .9rem; color: var(--muted); margin: 12px 0 4px; }
+  input, select, textarea {
+    width: 100%; background: #120e0a; color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+    font: inherit; font-size: 1rem; transition: border-color .2s, box-shadow .2s;
+  }
+  textarea { resize: vertical; min-height: 70px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft), 0 0 18px #e2b65c22; }
+
+  button {
+    position: relative; overflow: hidden;
+    font: inherit; font-family: 'Cinzel', serif; font-size: .88rem; letter-spacing: .04em;
+    background: linear-gradient(180deg, #2c2218, #1e1712); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px; padding: 9px 16px; cursor: pointer;
+    transition: border-color .2s, box-shadow .2s, transform .1s;
+  }
+  button:hover:not(:disabled) { border-color: var(--gold); box-shadow: 0 0 14px #e2b65c40; }
+  button:active:not(:disabled) { transform: translateY(1px); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.primary {
+    background: linear-gradient(180deg, var(--gold-2), var(--gold) 50%, #b8893a);
+    color: #24180a; border-color: #f2cf7f; font-weight: 700; text-shadow: 0 1px 0 #fff6;
+  }
+  button.primary::after {
+    content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
+    background: linear-gradient(100deg, transparent, #fff8, transparent);
+    animation: shimmer 3.2s ease-in-out infinite;
+  }
+  button.danger:hover:not(:disabled) { border-color: var(--red); color: var(--red); box-shadow: 0 0 14px #d65a4e40; }
+  button.small { padding: 5px 10px; font-size: .76rem; }
+
+  .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+  .error { background: #d65a4e1f; border: 1px solid var(--red); color: #f3b8b1; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; font-size: .95rem; }
+
+  /* Retratos */
+  .portrait {
+    position: relative; border-radius: 10px; overflow: hidden; flex: none;
+    border: 1px solid var(--gold); box-shadow: 0 0 0 3px #0008, 0 0 18px #e2b65c33;
+    background: #000;
+  }
+  .portrait svg { display: block; width: 100%; height: 100%; }
+  .portrait.hostil { border-color: var(--red); box-shadow: 0 0 0 3px #0008, 0 0 18px #d65a4e55; }
+  .portrait.round { border-radius: 50%; }
+  .portrait .glow-rune { animation: runePulse 3s ease-in-out infinite; }
+  .portrait .spirit { animation: spiritFade 3.5s ease-in-out infinite; }
+
+  /* Lobby */
+  .hero-title { text-align: center; margin: 10px 0 24px; }
+  .hero-title .muted { font-size: 1.05rem; }
+  .lobby-actions { justify-content: center; margin-bottom: 8px; }
+  .saves { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; margin-top: 18px; }
+  .save-card { display: flex; gap: 14px; animation: rise .5s ease both; }
+  .save-card .portrait { width: 86px; height: 104px; }
+  .save-card h3 { color: var(--gold); text-transform: none; font-family: 'Cinzel', serif; margin: 0 0 4px; font-size: 1.08rem; }
+  .save-card .meta { font-size: .88rem; color: var(--muted); margin-bottom: 10px; }
+  .version { font-size: .78rem; text-align: center; margin-top: 26px; }
+
+  /* Creación */
+  .create-grid { display: grid; grid-template-columns: 220px 1fr 1fr; gap: 20px; }
+  .create-preview { text-align: center; }
+  .create-preview .portrait { width: 200px; height: 240px; margin: 0 auto 10px; }
+  .custom { margin-top: 12px; text-align: left; }
+  .custom summary { cursor: pointer; font-family: 'Cinzel', serif; font-size: .85rem; color: var(--gold); text-align: center; }
+  .custom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; margin-top: 8px; }
+  .custom-grid label { margin: 4px 0 0; font-size: .8rem; }
+  .custom-grid .wide { grid-column: 1 / -1; }
+  .custom-grid select { padding: 6px 8px; font-size: .9rem; }
+  .custom-grid input[type="color"] { height: 34px; padding: 3px; cursor: pointer; }
+  .epithet { color: var(--gold); font-style: italic; font-size: .95rem; line-height: 1.25; }
+  .stats-roll { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 8px; }
+  .stat-box {
+    background: radial-gradient(circle at 50% 0%, #3a2c1d, #161109); border: 1px solid var(--border);
+    border-radius: 10px; text-align: center; padding: 8px 4px; animation: rise .4s ease both;
+  }
+  .stat-box .k { font-family: 'Cinzel', serif; font-size: .74rem; color: var(--muted); }
+  .stat-box .v { font-size: 1.45rem; font-weight: 600; }
+  .stat-box .m { font-size: .85rem; color: var(--gold); }
+
+  /* Pantalla de carga */
+  .loading { text-align: center; padding: 60px 16px; }
+  .rune-spinner { width: 220px; height: 220px; margin: 0 auto 20px; display: block; }
+  .rune-spinner .ring { transform-origin: 110px 110px; animation: spin 14s linear infinite; }
+  .rune-spinner .ring2 { transform-origin: 110px 110px; animation: spin 9s linear infinite reverse; }
+  .rune-spinner .lit { animation: runeLight 2.4s ease-in-out infinite; }
+
+  /* Partida */
+  .game { display: grid; grid-template-columns: 1fr 360px; gap: 16px; height: calc(100vh - 96px); min-height: 560px; }
+  .story { display: flex; flex-direction: column; min-height: 0; padding: 0; overflow: hidden; }
+  .scene { position: relative; height: 210px; flex: none; border-bottom: 1px solid var(--border); background: #000; }
+  .scene canvas { display: block; width: 100%; height: 100%; }
+  .scene::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 -30px 40px -10px #17120d, inset 0 0 60px #0008; pointer-events: none; }
+  .scene-info { position: absolute; left: 16px; top: 12px; z-index: 2; text-shadow: 0 2px 6px #000, 0 0 2px #000; }
+  .scene-info .place { font-family: 'Cinzel', serif; color: var(--gold-2); font-size: 1.05rem; }
+  .scene-info .when { font-size: .85rem; color: #e8dcc6; }
+  .scene-npcs { position: absolute; right: 12px; bottom: 12px; z-index: 2; display: flex; gap: 8px; }
+  .scene-npcs .portrait { width: 48px; height: 48px; cursor: pointer; animation: rise .5s ease both; transition: transform .2s; }
+  .scene-npcs .portrait:hover { transform: translateY(-3px) scale(1.06); }
+
+  .log { flex: 1; overflow-y: auto; padding: 18px 24px; scroll-behavior: smooth; }
+  .entry { margin: 0 0 18px; }
+  .entry.dm p { margin: 0 0 .7em; }
+  .entry.dm.new .w { opacity: 0; display: inline-block; animation: wordIn .35s ease forwards; animation-delay: var(--d); }
+  .entry.player { text-align: right; color: var(--gold-2); font-style: italic; animation: rise .35s ease both; }
+  .entry.player span { display: inline-block; background: linear-gradient(90deg, #e2b65c14, #e2b65c2e); border: 1px solid #e2b65c33; border-radius: 10px; padding: 6px 12px; max-width: 85%; text-align: left; }
+  .entry.roll { text-align: center; font-size: .92rem; animation: rise .35s ease both; }
+  .entry.roll span { display: inline-block; border: 1px dashed var(--border); border-radius: 8px; padding: 6px 12px; background: #0005; }
+  .entry.roll .ok { color: var(--green); font-weight: 600; }
+  .entry.roll .ko { color: var(--red); font-weight: 600; }
+  .entry.sys { text-align: center; font-size: .88rem; color: var(--rune); text-shadow: 0 0 10px var(--rune-soft); animation: rise .35s ease both; }
+  .controls { border-top: 1px solid var(--border); padding: 14px 16px; background: #120e0acc; }
+  .options { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .options button { font-family: 'Crimson Pro', serif; font-size: .98rem; letter-spacing: 0; text-align: left; animation: rise .4s ease both; }
+  .options button::before { content: 'ᛜ '; font-family: var(--runic); color: var(--gold); }
+  .input-row { display: flex; gap: 8px; }
+  .input-row textarea { min-height: 48px; height: 48px; }
+  .roll-btn { width: 100%; font-size: 1.05rem; padding: 14px; animation: pulseGlow 2s ease-in-out infinite; }
+  .thinking { color: var(--muted); font-style: italic; padding: 4px 0 10px; display: flex; align-items: center; gap: 10px; }
+  .thinking .runes { font-family: var(--runic); color: var(--gold); letter-spacing: .3em; }
+  .thinking .runes span { animation: runeLight 1.4s ease-in-out infinite; opacity: .25; }
+
+  /* Panel lateral */
+  .side { display: flex; flex-direction: column; min-height: 0; padding: 0; overflow: hidden; }
+  .tab-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+  .hero-head { display: flex; gap: 14px; align-items: center; }
+  .hero-head .portrait { width: 104px; height: 126px; }
+  .hero-head .name { font-family: 'Cinzel', serif; color: var(--gold-2); font-size: 1.2rem; line-height: 1.2; }
+  .bar { height: 10px; background: #0d0a08; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin: 4px 0 2px; }
+  .bar > div { height: 100%; transition: width .6s cubic-bezier(.2,.8,.2,1); }
+  .bar.hp > div { background: linear-gradient(90deg, #7e2620, var(--red)); box-shadow: 0 0 10px #d65a4e88; }
+  .bar.xp > div { background: linear-gradient(90deg, #3d5f8f, var(--rune)); box-shadow: 0 0 10px var(--rune-soft); }
+  .side .stats-roll { grid-template-columns: repeat(3, 1fr); }
+  .side ul { margin: 0; padding-left: 18px; }
+  .side li { margin-bottom: 3px; }
+  .kv { display: flex; justify-content: space-between; font-size: .95rem; }
+  .map-wrap { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .map-wrap canvas { display: block; width: 100%; height: auto; }
+  .places li.current { color: var(--gold-2); }
+  .npc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .npc-card { text-align: center; font-size: .9rem; animation: rise .4s ease both; }
+  .npc-card .portrait { width: 100%; aspect-ratio: 5 / 6; margin-bottom: 6px; }
+  .npc-card.present .portrait { box-shadow: 0 0 0 3px #0008, 0 0 22px var(--rune); border-color: var(--rune); }
+  .npc-card .n { font-family: 'Cinzel', serif; color: var(--gold-2); font-size: .85rem; }
+  .npc-card .r { color: var(--muted); font-size: .82rem; line-height: 1.25; }
+  .npc-card.flash { animation: flash 1.2s ease; }
+
+  /* Dado */
+  #dice-overlay { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000b; backdrop-filter: blur(3px); }
+  #dice-overlay[hidden] { display: none; }
+  #dice-overlay svg { width: 190px; height: 190px; filter: drop-shadow(0 0 24px #e2b65c88); }
+  #dice-overlay .spinning { animation: dieSpin .9s cubic-bezier(.3,.1,.3,1) both; }
+  #dice-overlay .landed { animation: dieLand .4s ease both; }
+  #dice-overlay .die-num { font-family: 'Cinzel', serif; font-weight: 700; font-size: 44px; fill: #24180a; }
+  #dice-overlay .verdict { font-family: 'Cinzel', serif; font-weight: 700; font-size: 1.8rem; margin-top: 14px; opacity: 0; }
+  #dice-overlay .verdict.show { animation: rise .4s ease forwards; }
+  #dice-overlay .detail { color: var(--muted); margin-top: 4px; opacity: 0; }
+  #dice-overlay .detail.show { animation: rise .4s .1s ease forwards; }
+
+  /* Avisos */
+  .toast { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); z-index: 60; padding: 12px 22px; border-radius: 10px; font-family: 'Cinzel', serif; background: #1c1611f2; border: 1px solid var(--gold); color: var(--gold-2); box-shadow: 0 0 30px #e2b65c55; animation: toast 3s ease forwards; }
+  .shake { animation: shake .45s ease; }
+  .hit-flash { animation: hitFlash .6s ease; }
+  .heal-flash { animation: healFlash .8s ease; }
+
+  @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+  .rune-spinner .ring, .rune-spinner .ring2 { animation-name: spinPlain; }
+  @keyframes spinPlain { to { transform: rotate(360deg); } }
+  @keyframes shimmer { 0%, 60% { left: -60%; } 100% { left: 130%; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes wordIn { from { opacity: 0; filter: blur(3px); transform: translateY(3px); } to { opacity: 1; filter: none; transform: none; } }
+  @keyframes runeLight { 0%, 100% { opacity: .25; } 50% { opacity: 1; text-shadow: 0 0 10px var(--gold); } }
+  @keyframes runePulse { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+  @keyframes spiritFade { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+  @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 10px #e2b65c55; } 50% { box-shadow: 0 0 26px #e2b65caa; } }
+  @keyframes dieSpin { 0% { transform: rotate(0) scale(.4); opacity: 0; } 30% { opacity: 1; } 100% { transform: rotate(1080deg) scale(1); } }
+  @keyframes dieLand { 0% { transform: scale(1.15); } 100% { transform: scale(1); } }
+  @keyframes toast { 0% { opacity: 0; transform: translate(-50%, -12px); } 12%, 80% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -12px); } }
+  @keyframes shake { 0%, 100% { transform: none; } 20% { transform: translateX(-6px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+  @keyframes hitFlash { 0% { box-shadow: 0 0 0 3px #0008, 0 0 40px var(--red); } 100% { box-shadow: 0 0 0 3px #0008, 0 0 18px #e2b65c33; } }
+  @keyframes healFlash { 0% { box-shadow: 0 0 0 3px #0008, 0 0 40px var(--green); } 100% { box-shadow: 0 0 0 3px #0008, 0 0 18px #e2b65c33; } }
+  @keyframes flash { 0%, 100% { background: transparent; } 30% { background: #8fdcff22; } }
+
+  /* Navegación: barra lateral en ordenador, barra inferior en tablet y móvil */
+  .nav { position: fixed; z-index: 30; display: flex; background: linear-gradient(180deg, #1d1610f7, #110d09f7); border-color: var(--border); border-style: solid; border-width: 0; }
+  .nav button { display: flex; align-items: center; gap: 12px; background: transparent; border: 0; border-radius: 10px; color: var(--muted); }
+  .nav button:not(.active):hover { box-shadow: none; color: var(--text); background: #e2b65c12; }
+  .nav button.active { color: var(--gold-2); }
+  .nav svg { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .nav-brand { display: flex; align-items: center; gap: 10px; font-family: 'Cinzel', serif; font-weight: 700; color: var(--gold); }
+  .nav-rune { font-family: var(--runic); font-size: 1.3rem; text-shadow: 0 0 10px var(--gold); width: 22px; text-align: center; }
+  body.sin-partida .nav .game-only { display: none; }
+
+  @media (min-width: 1025px) {
+    body { padding-left: 216px; transition: padding-left .2s; }
+    .nav { top: 0; bottom: 0; left: 0; width: 216px; flex-direction: column; gap: 4px; padding: 18px 10px; border-right-width: 1px; transition: width .2s; }
+    .nav-brand { padding: 2px 12px 20px; font-size: 1.05rem; }
+    .nav button { width: 100%; padding: 11px 12px; font-size: .9rem; text-align: left; }
+    .nav button.active { background: linear-gradient(90deg, #e2b65c26, transparent); box-shadow: inset 3px 0 0 var(--gold); }
+    .nav [data-nav="historia"] { display: none; }
+    .nav-toggle { margin-top: auto; }
+    body.nav-plegada { padding-left: 72px; }
+    body.nav-plegada .nav { width: 72px; }
+    body.nav-plegada .nav .nav-label { display: none; }
+    body.nav-plegada .nav button, body.nav-plegada .nav-brand { justify-content: center; padding-left: 0; padding-right: 0; }
+    body.nav-plegada .nav-toggle svg { transform: rotate(180deg); }
+  }
+  @media (max-width: 1024px) {
+    body { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+    .nav { left: 0; right: 0; bottom: 0; height: calc(64px + env(safe-area-inset-bottom)); padding: 4px 6px env(safe-area-inset-bottom); border-top-width: 1px; justify-content: space-around; }
+    .nav .nav-brand, .nav .nav-toggle { display: none; }
+    body:not(.sin-partida) .nav [data-nav="nuevo"] { display: none; }
+    .nav button { flex: 1 1 0; min-width: 0; flex-direction: column; justify-content: center; gap: 3px; padding: 6px 2px; font-size: .68rem; letter-spacing: 0; }
+    .nav button.active { background: linear-gradient(0deg, transparent, #e2b65c1f); box-shadow: inset 0 2px 0 var(--gold); }
+    .nav-label { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .game { grid-template-columns: 1fr; height: calc(100vh - 150px); height: calc(100dvh - 150px); min-height: 420px; }
+    #screen-game[data-vista="historia"] .side { display: none; }
+    #screen-game[data-vista="panel"] .story { display: none; }
+  }
+
+  @media (max-width: 960px) {
+    .create-grid { grid-template-columns: 1fr 1fr; }
+    .create-preview { grid-column: 1 / -1; }
+  }
+  @media (max-width: 860px) {
+    body { font-size: 17px; }
+    .grid-2, .create-grid { grid-template-columns: 1fr; }
+    .scene { height: 150px; }
+    .log { padding: 14px 16px; }
+    .stats-roll { grid-template-columns: repeat(3, 1fr); }
+    .scene-npcs .portrait { width: 40px; height: 40px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    .entry.dm.new .w { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<canvas id="fx-embers"></canvas>
+<svg class="rune-ring-bg" viewBox="0 0 400 400" aria-hidden="true">
+  <defs><path id="ring-path" d="M200,200 m-170,0 a170,170 0 1,1 340,0 a170,170 0 1,1 -340,0"/></defs>
+  <circle cx="200" cy="200" r="190" fill="none" stroke="#e2b65c" stroke-width="1"/>
+  <circle cx="200" cy="200" r="150" fill="none" stroke="#e2b65c" stroke-width=".6"/>
+  <text font-size="17" letter-spacing="9"><textPath href="#ring-path">ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ</textPath></text>
+</svg>
+
+<nav id="nav" class="nav" aria-label="Secciones">
+  <div class="nav-brand"><span class="nav-rune">ᛟ</span><span class="nav-label">Crónicas</span></div>
+  <button data-nav="partidas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18H6z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg><span class="nav-label">Partidas</span></button>
+  <button data-nav="nuevo"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span class="nav-label">Nuevo</span></button>
+  <button data-nav="historia" class="game-only"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5c3-1 6-1 9 1 3-2 6-2 9-1v14c-3-1-6-1-9 1-3-2-6-2-9-1z"/><path d="M12 6v14"/></svg><span class="nav-label">Historia</span></button>
+  <button data-nav="heroe" class="game-only"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M12 8v6M9 11h6"/></svg><span class="nav-label">Héroe</span></button>
+  <button data-nav="mapa" class="game-only"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg><span class="nav-label">Mapa</span></button>
+  <button data-nav="pnj" class="game-only"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M14.5 20c.2-2.6 1.7-4.4 3.8-4.4 2 0 2.7 1.4 2.7 3"/></svg><span class="nav-label">Personajes</span></button>
+  <button id="nav-toggle" class="nav-toggle" title="Plegar o desplegar el menú"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg><span class="nav-label">Plegar menú</span></button>
+</nav>
+
+<section id="screen-lobby" class="screen">
+  <div class="hero-title">
+    <h1>Crónicas Infinitas</h1>
+    <div class="muted">Rol de fantasía en solitario. Cada personaje vive una campaña irrepetible.</div>
+    <div class="rune-divider">ᚠᚢᚦᚨᚱᚲ ᛟ ᚷᚹᚺᚾᛁᛃ</div>
+  </div>
+  <div class="row lobby-actions">
+    <button id="btn-import">Importar partida</button>
+    <button id="btn-new" class="primary">Nuevo personaje</button>
+  </div>
+  <div id="saves" class="saves"></div>
+  <div class="muted version">Versión 9</div>
+  <input type="file" id="import-file" accept="application/json" hidden>
+</section>
+
+<section id="screen-create" class="screen" hidden>
+  <div class="topbar">
+    <h1>Forja tu héroe</h1>
+  </div>
+  <div class="card">
+    <span class="corner tl">ᛟ</span><span class="corner tr">ᛟ</span><span class="corner bl">ᛟ</span><span class="corner br">ᛟ</span>
+    <div class="create-grid">
+      <div class="create-preview">
+        <div id="c-portrait" class="portrait"></div>
+        <button id="btn-look" class="small">ᛉ Otro aspecto</button>
+        <details class="custom">
+          <summary>Personalizar aspecto</summary>
+          <div class="custom-grid">
+            <label>Piel<input type="color" data-look="piel"></label>
+            <label>Pelo<input type="color" data-look="pelo"></label>
+            <label>Ojos<input type="color" data-look="ojos"></label>
+            <label>Ropa<input type="color" data-look="ropa"></label>
+            <label>Peinado<select data-look="peinado"></select></label>
+            <label>Barba<select data-look="barba"></select></label>
+            <label>Marca<select data-look="marca"></select></label>
+            <label>Accesorio<select data-look="accesorio"></select></label>
+            <label class="wide">Tocado<select data-look="tocado"></select></label>
+          </div>
+        </details>
+      </div>
+      <div>
+        <label for="c-name">Nombre</label>
+        <input id="c-name" maxlength="40" placeholder="Ej.: Aelith Varn">
+        <div class="grid-2">
+          <div>
+            <label for="c-race">Raza</label>
+            <select id="c-race"></select>
+          </div>
+          <div>
+            <label for="c-class">Clase</label>
+            <select id="c-class"></select>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label for="c-sex">Sexo</label>
+            <select id="c-sex"><option value="hombre">Hombre</option><option value="mujer">Mujer</option></select>
+          </div>
+          <div>
+            <label for="c-align">Alineamiento</label>
+            <select id="c-align">
+              <option>Legal bueno</option><option>Neutral bueno</option><option>Caótico bueno</option>
+              <option>Legal neutral</option><option selected>Neutral</option><option>Caótico neutral</option>
+              <option>Legal malvado</option><option>Neutral malvado</option><option>Caótico malvado</option>
+            </select>
+          </div>
+        </div>
+        <label for="c-tone">Tono preferido de la campaña</label>
+        <select id="c-tone">
+          <option value="">Sorpresa</option>
+          <option>Épico y heroico</option>
+          <option>Oscuro y sombrío</option>
+          <option>Misterio e intriga</option>
+          <option>Terror gótico</option>
+          <option>Aventura ligera con humor</option>
+          <option>Intriga política</option>
+          <option>Exploración y descubrimiento</option>
+        </select>
+      </div>
+      <div>
+        <label for="c-backstory">Trasfondo (opcional: la historia se construye a partir de él)</label>
+        <textarea id="c-backstory" rows="5" maxlength="800" placeholder="Ej.: Hija de un herrero exiliado, busca la espada que le robaron a su padre..."></textarea>
+        <label for="c-traits">Personalidad y rasgos (opcional: miedos, lealtades, defectos…)</label>
+        <textarea id="c-traits" rows="3" maxlength="300" placeholder="Ej.: Desconfiada, leal hasta la muerte, teme al agua profunda"></textarea>
+      </div>
+    </div>
+    <div class="rune-divider">ᛒᛖᛗᛚᛜᛞ</div>
+    <h3>Atributos <span class="muted" style="text-transform:none">(4d6, se descarta el menor; incluye bonificador racial)</span></h3>
+    <div id="c-stats" class="stats-roll"></div>
+    <div class="row" style="margin-top:16px; justify-content:space-between">
+      <button id="btn-reroll">🎲 Volver a tirar</button>
+      <button id="btn-start" class="primary">Comenzar la aventura</button>
+    </div>
+    <div id="create-error" class="error" style="margin-top:14px" hidden></div>
+  </div>
+</section>
+
+<section id="screen-loading" class="screen loading" hidden>
+  <svg class="rune-spinner" viewBox="0 0 220 220" aria-hidden="true">
+    <defs>
+      <path id="sp1" d="M110,110 m-92,0 a92,92 0 1,1 184,0 a92,92 0 1,1 -184,0"/>
+      <path id="sp2" d="M110,110 m-62,0 a62,62 0 1,1 124,0 a62,62 0 1,1 -124,0"/>
+    </defs>
+    <g class="ring"><circle cx="110" cy="110" r="104" fill="none" stroke="#e2b65c" stroke-opacity=".5"/>
+      <text font-size="15" letter-spacing="6"><textPath href="#sp1">ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗ</textPath></text></g>
+    <g class="ring2"><circle cx="110" cy="110" r="74" fill="none" stroke="#8fdcff" stroke-opacity=".4"/>
+      <text font-size="13" letter-spacing="5" style="fill:#8fdcff"><textPath href="#sp2">ᛚᛜᛞᛟᛉᛊᛏᛒᛖᛗᚠᚢ</textPath></text></g>
+    <text x="110" y="128" text-anchor="middle" font-size="50" class="lit">ᛟ</text>
+  </svg>
+  <h2>Preparando la partida…</h2>
+  <div class="muted">El narrador ordena sus notas: el mundo, sus villanos y la primera escena.</div>
+</section>
+
+<section id="screen-game" class="screen" hidden>
+  <div class="topbar">
+    <h2 id="g-title" style="margin:0"></h2>
+  </div>
+  <div class="game">
+    <div class="card story">
+      <div class="scene">
+        <canvas id="scene-canvas"></canvas>
+        <div class="scene-info"><div id="scene-place" class="place"></div><div id="scene-when" class="when"></div></div>
+        <div id="scene-npcs" class="scene-npcs"></div>
+      </div>
+      <div id="log" class="log"></div>
+      <div class="controls" id="controls"></div>
+    </div>
+    <aside id="side" class="card side">
+      <div id="tab-body" class="tab-body"></div>
+    </aside>
+  </div>
+</section>
+
+<div id="dice-overlay" hidden></div>
+<script>
+'use strict';
+
+// Azar reproducible: la misma semilla produce siempre el mismo resultado
+function hash32(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  h += h << 13; h ^= h >>> 7; h += h << 3; h ^= h >>> 17; h += h << 5;
+  return h >>> 0;
+}
+
+function makeRng(seed) {
+  let a = hash32(String(seed));
+  const next = () => {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  return {
+    next,
+    range: (lo, hi) => lo + (hi - lo) * next(),
+    int: (lo, hi) => lo + Math.floor((hi - lo + 1) * next()),
+    pick: (arr) => arr[Math.floor(next() * arr.length)],
+    chance: (p) => next() < p,
+    weighted: (pairs) => {
+      let r = next() * pairs.reduce((s, p) => s + p[1], 0);
+      for (const [v, w] of pairs) { if ((r -= w) <= 0) return v; }
+      return pairs[pairs.length - 1][0];
+    },
+  };
+}
+
+// Ruido de valor fractal para relieve y humedad
+function makeNoise(seed) {
+  const s = hash32(String(seed));
+  const lat = (x, y) => {
+    let h = (s ^ Math.imul(x, 374761393) ^ Math.imul(y, 668265263)) >>> 0;
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
+  };
+  const sm = (t) => t * t * (3 - 2 * t);
+  const value = (x, y) => {
+    const xi = Math.floor(x), yi = Math.floor(y);
+    const u = sm(x - xi), w = sm(y - yi);
+    const a = lat(xi, yi), b = lat(xi + 1, yi), c = lat(xi, yi + 1), d = lat(xi + 1, yi + 1);
+    return a + (b - a) * u + (c - a) * w + (a - b - c + d) * u * w;
+  };
+  return (x, y, oct = 4) => {
+    let t = 0, amp = 1, f = 1, n = 0;
+    for (let i = 0; i < oct; i++) { t += value(x * f, y * f) * amp; n += amp; amp *= 0.5; f *= 2.03; }
+    return t / n;
+  };
+}
+
+function hexToRgb(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function rgbToHex([r, g, b]) {
+  return '#' + [r, g, b].map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+}
+function mix(a, b, t) {
+  const x = hexToRgb(a), y = hexToRgb(b);
+  return rgbToHex(x.map((v, i) => v + (y[i] - v) * t));
+}
+const shade = (hex, amt) => mix(hex, amt < 0 ? '#000000' : '#ffffff', Math.abs(amt));
+
+// Color en HSL para generar tonos continuos
+function rgbToHsl([r, g, b]) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2;
+  if (max === min) return [0, 0, l];
+  const d = max - min;
+  const s = l > .5 ? d / (2 - max - min) : d / (max + min);
+  const h = max === r ? (g - b) / d + (g < b ? 6 : 0) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [h * 60, s, l];
+}
+function hsl(h, s, l) {
+  h = ((h % 360) + 360) % 360; s = Math.max(0, Math.min(1, s)); l = Math.max(0, Math.min(1, l));
+  const k = (n) => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+  const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+  return rgbToHex([f(0) * 255, f(8) * 255, f(4) * 255]);
+}
+function hueShift(hex, deg, satMul = 1, lightAdd = 0) {
+  const [h, s, l] = rgbToHsl(hexToRgb(hex));
+  return hsl(h + deg, s * satMul, l + lightAdd);
+}
+
+// Retratos procedurales (héroe y personajes no jugadores)
+const SKIN = {
+  'Humano': ['#f6d3b3', '#e9b892', '#d39a72', '#b47652', '#8a5638', '#5e3826', '#3f251a'],
+  'Elfo': ['#f6e3cf', '#ecd2b6', '#d8b99a', '#c39f7e', '#b9c4a4', '#a9b8c9'],
+  'Enano': ['#efc4a2', '#d9a07a', '#bf825d', '#946042', '#6f4a35'],
+  'Mediano': ['#f3cfa9', '#e2b083', '#cf9668', '#a9744d', '#7e5236'],
+  'Gnomo': ['#f4d6b8', '#e7b994', '#d9a37c', '#c58c66', '#b9a6c9'],
+  'Semiorco': ['#9fb377', '#7a8f5a', '#9aa883', '#6f7d5c', '#a1977c', '#7d8f8a'],
+  'Tiflin': ['#c4483e', '#9c3d5e', '#7d3f74', '#c45f4a', '#6d4a8a', '#3d5f8a'],
+  'Dracónido': ['#b07a3a', '#9b2f2a', '#3d6e9e', '#3f7d4c', '#c9a23b', '#d8d3c4', '#3a3a48', '#7a3f8a'],
+};
+
+const STYLES = {
+  'Guerrero':   { armor: 'plate',   main: '#7d838c', accent: '#a8362b', rune: 'ᛏ', head: [['helmet', .35], ['none', .65]] },
+  'Paladín':    { armor: 'plate',   main: '#c9c3b2', accent: '#d4a64a', rune: 'ᛋ', head: [['helmet', .3], ['circlet', .3], ['none', .4]] },
+  'Pícaro':     { armor: 'leather', main: '#2f2821', accent: '#6a2b3c', rune: 'ᚦ', head: [['hood', .65], ['none', .35]] },
+  'Explorador': { armor: 'leather', main: '#3b4a2a', accent: '#8a6a35', rune: 'ᚢ', head: [['hood', .45], ['bandana', .2], ['none', .35]] },
+  'Mago':       { armor: 'robe',    main: '#2a3b80', accent: '#e2b65c', rune: 'ᚨ', head: [['wizard', .55], ['none', .45]] },
+  'Brujo':      { armor: 'robe',    main: '#36203f', accent: '#9b4de0', rune: 'ᛈ', head: [['hood', .55], ['none', .45]], glow: true },
+  'Clérigo':    { armor: 'robe',    main: '#d9d0b6', accent: '#c99a3e', rune: 'ᛉ', head: [['circlet', .4], ['hood', .2], ['none', .4]] },
+  'Bardo':      { armor: 'doublet', main: '#7a2a3c', accent: '#e2b65c', rune: 'ᛚ', head: [['cap', .55], ['none', .45]] },
+  'Noble':      { armor: 'fine',    main: '#4a2a5a', accent: '#e2b65c', rune: 'ᛟ', head: [['circlet', .5], ['none', .5]] },
+  'Plebeyo':    { armor: 'tunic',   main: '#6b5238', accent: '#a08560', rune: 'ᚠ', head: [['none', .7], ['bandana', .3]] },
+  'Mercader':   { armor: 'tunic',   main: '#2f5a5a', accent: '#d4a64a', rune: 'ᚠ', head: [['merchant', .5], ['none', .5]] },
+};
+
+const ARQUETIPOS = {
+  guerrero: 'Guerrero', paladin: 'Paladín', picaro: 'Pícaro', explorador: 'Explorador', mago: 'Mago',
+  brujo: 'Brujo', clerigo: 'Clérigo', bardo: 'Bardo', noble: 'Noble', plebeyo: 'Plebeyo', mercader: 'Mercader',
+};
+const TIPOS_CRIATURA = ['humanoide', 'bestia', 'no_muerto', 'demonio', 'dragon', 'constructo', 'espiritu'];
+
+// Opciones de apariencia que el jugador puede fijar al crear el personaje
+const PEINADOS = { corto: 'Corto', largo: 'Largo', mono: 'Moño', cresta: 'Cresta', rapado: 'Rapado', trenza: 'Trenza', coleta: 'Coleta', rizado: 'Rizado', flequillo: 'Flequillo', puntas: 'De punta', salvaje: 'Melena salvaje' };
+const BARBAS = { ninguna: 'Sin barba', sombra: 'De pocos días', completa: 'Completa', perilla: 'Perilla', bigote: 'Bigote', patillas: 'Patillas', trenzada: 'Trenzada' };
+const MARCAS = { ninguna: 'Ninguna', cicatriz: 'Cicatriz', pintura: 'Pintura de guerra', pecas: 'Pecas', runa: 'Tatuaje rúnico', lunar: 'Lunar' };
+const ACCESORIOS = { ninguno: 'Ninguno', pendiente: 'Pendiente', parche: 'Parche en el ojo', aro: 'Aro en la nariz', collar: 'Collar con gema' };
+const TOCADOS = { none: 'Sin tocado', hood: 'Capucha', helmet: 'Yelmo', wizard: 'Sombrero de mago', circlet: 'Diadema', cap: 'Boina con pluma', bandana: 'Pañuelo', merchant: 'Gorro' };
+const NARICES = ['recta', 'ancha', 'aguilena', 'respingona', 'pequena'];
+
+// Formas en femenino de razas y clases para mostrar al jugador
+const FEMENINO = {
+  'Humano': 'Humana', 'Elfo': 'Elfa', 'Enano': 'Enana', 'Mediano': 'Mediana', 'Gnomo': 'Gnoma', 'Semiorco': 'Semiorca', 'Dracónido': 'Dracónida',
+  'Guerrero': 'Guerrera', 'Pícaro': 'Pícara', 'Mago': 'Maga', 'Clérigo': 'Clériga', 'Explorador': 'Exploradora', 'Bardo': 'Barda', 'Paladín': 'Paladina', 'Brujo': 'Bruja',
+};
+const genero = (word, sexo) => (sexo === 'mujer' && FEMENINO[word]) || word;
+
+// Convierte la raza descrita en texto libre a una de las razas con apariencia definida.
+function raceFromText(text) {
+  const t = String(text || '').toLowerCase();
+  if (RACES[text]) return text;
+  if (/elf/.test(t)) return 'Elfo';
+  if (/enan|dwarf/.test(t)) return 'Enano';
+  if (/median|halfl/.test(t)) return 'Mediano';
+  if (/gnom/.test(t)) return 'Gnomo';
+  if (/orc/.test(t)) return 'Semiorco';
+  if (/tifl|tiefl|infernal/.test(t)) return 'Tiflin';
+  if (/drac|drag/.test(t)) return 'Dracónido';
+  return 'Humano';
+}
+
+// Calcula la apariencia completa a partir de la semilla; las elecciones del jugador tienen prioridad.
+function resolveLook(seed, raza, clase, overrides = {}, sexo) {
+  const R = makeRng('look|' + seed);
+  const fem = (overrides.sexo || sexo || (makeRng('sexo|' + seed).chance(.5) ? 'mujer' : 'hombre')) === 'mujer';
+  const st = STYLES[clase] || STYLES.Plebeyo;
+  const pal = SKIN[raza] || SKIN.Humano;
+  const fantasyHair = raza === 'Tiflin' ? .35 : raza === 'Elfo' || raza === 'Gnomo' ? .15 : .06;
+  let hair;
+  if (R.chance(fantasyHair)) hair = hsl(R.range(0, 360), R.range(.35, .7), R.range(.2, .55));
+  else if (R.chance(.1)) hair = hsl(R.range(20, 40), R.range(.02, .1), R.range(.55, .88));
+  else hair = hsl(R.range(12, 44), R.range(.18, .7), .07 + R.next() ** 1.5 * .68);
+
+  const look = {
+    piel: shade(mix(R.pick(pal), R.pick(pal), R.next()), R.range(-.06, .06)),
+    pelo: hair,
+    ojos: hsl(R.range(0, 360), R.range(.35, .75), R.range(.28, .5)),
+    ropa: hueShift(st.main, R.range(-28, 28), R.range(.8, 1.25), R.range(-.07, .07)),
+    detalle: hueShift(st.accent, R.range(-15, 15), 1, R.range(-.05, .05)),
+    peinado: raza === 'Dracónido' ? 'rapado' : fem
+      ? R.weighted([['largo', 4], ['trenza', 2], ['coleta', 2], ['mono', 1.5], ['rizado', 1.5], ['flequillo', 1.5], ['corto', 1], ['salvaje', 1], ['cresta', raza === 'Semiorco' ? .8 : .2], ['rapado', .2], ['puntas', .3]])
+      : R.weighted([['corto', 4], ['rapado', raza === 'Enano' ? 2 : 1.3], ['puntas', 1.2], ['cresta', raza === 'Semiorco' ? 2 : .6], ['rizado', 1], ['largo', 1], ['salvaje', .7], ['coleta', .5], ['trenza', .5], ['flequillo', .3], ['mono', .3]]),
+    barba: raza === 'Dracónido' ? 'ninguna' : fem ? (raza === 'Enano' ? R.weighted([['ninguna', 6], ['trenzada', 1]]) : 'ninguna') : raza === 'Enano' ? R.weighted([['trenzada', 3], ['completa', 2], ['bigote', .5]]) : R.weighted([['sombra', 3], ['completa', 2], ['perilla', 1.3], ['bigote', 1], ['patillas', .8], ['ninguna', 1.2]]),
+    marca: R.weighted([['ninguna', 5], ['cicatriz', 1], ['pintura', raza === 'Semiorco' || clase === 'Explorador' ? 1.5 : .5], ['pecas', raza === 'Dracónido' ? 0 : 1], ['runa', clase === 'Brujo' || clase === 'Mago' ? 1.5 : .4], ['lunar', .6]]),
+    accesorio: R.weighted([['ninguno', 6], ['pendiente', 1.2], ['parche', .5], ['aro', .6], ['collar', 1]]),
+    tocado: R.weighted(st.head),
+    caraAncho: fem ? R.range(.88, 1) : R.range(.95, 1.08),
+    caraAlto: R.range(.94, 1.06),
+    ojosSep: R.range(.38, .47),
+    ojosTam: fem ? R.range(1, 1.25) : R.range(.85, 1.05),
+    cejas: fem ? R.range(.8, 1.4) : R.range(1.7, 2.6),
+    cejasInc: R.range(-.6, 1.2),
+    nariz: R.pick(NARICES),
+    boca: fem ? R.weighted([['carnosa', 2], ['fina', 2], ['ladeada', 1], ['seria', .5]]) : R.weighted([['seria', 2], ['fina', 2], ['ladeada', 1.5]]),
+    sexo: fem ? 'mujer' : 'hombre',
+    sonrisa: R.range(-.6, 1.8),
+    gema: hsl(R.range(0, 360), .8, .6),
+  };
+  for (const [k, v] of Object.entries(overrides || {})) if (v !== undefined && v !== null && v !== '') look[k] = v;
+  return look;
+}
+
+// Sello rúnico propio de cada semilla: polígono, anillos y tres runas.
+function sigilSVG(seed, color) {
+  const R = makeRng('sello|' + seed);
+  const n = R.int(3, 8), rot = R.range(0, 360), r = R.range(30, 38);
+  const pts = Array.from({ length: n }, (_, i) => {
+    const a = (rot + i * 360 / n) * Math.PI / 180;
+    return `${(50 + r * Math.cos(a)).toFixed(1)},${(52 + r * Math.sin(a)).toFixed(1)}`;
+  }).join(' ');
+  const runes = Array.from({ length: 3 }, (_, i) => {
+    const a = (rot + 60 + i * 120) * Math.PI / 180;
+    return `<text x="${(50 + 41 * Math.cos(a)).toFixed(1)}" y="${(55 + 41 * Math.sin(a)).toFixed(1)}" font-size="8" text-anchor="middle" fill="${color}" style="font-family:var(--runic)">${R.pick([...'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ'])}</text>`;
+  }).join('');
+  return `<g opacity=".32"><circle cx="50" cy="52" r="${r + 6}" fill="none" stroke="${color}" stroke-dasharray="${R.int(1, 4)} ${R.int(3, 7)}"/><polygon points="${pts}" fill="none" stroke="${color}"/>${R.chance(.5) ? `<circle cx="50" cy="52" r="${(r * .55).toFixed(1)}" fill="none" stroke="${color}"/>` : ''}${runes}</g>`;
+}
+
+function portraitSVG({ seed, raza = 'Humano', clase = 'Plebeyo', tipo = 'humanoide', hostil = false, look, sexo }) {
+  const id = 'p' + hash32(seed + raza + clase + tipo + (sexo || '') + JSON.stringify(look || {})).toString(36);
+  const st = STYLES[clase] || STYLES.Plebeyo;
+  const L = tipo === 'humanoide' ? resolveLook(seed, raza, clase, look, sexo) : null;
+  const accent = L ? L.detalle : st.accent;
+  const frame = hostil ? '#d65a4e' : accent;
+  const bgTop = hostil ? '#4a1612' : shade(accent, -0.55);
+  const parts = [`<defs>
+    <radialGradient id="${id}bg" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="${bgTop}"/><stop offset="1" stop-color="#07060a"/></radialGradient>
+    <radialGradient id="${id}sh" cx="50%" cy="35%" r="65%"><stop offset="0" stop-color="#fff" stop-opacity=".18"/><stop offset="1" stop-color="#000" stop-opacity=".25"/></radialGradient>
+    <filter id="${id}gl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>`, `<rect width="100" height="120" fill="url(#${id}bg)"/>`, sigilSVG(seed, frame)];
+  parts.push(L ? humanoidSVG(id, raza, st, L, hostil) : creatureSVG(makeRng(seed + '|' + tipo), id, tipo, hostil));
+  parts.push(`<text x="50" y="116" text-anchor="middle" font-size="9" fill="${frame}" opacity=".8" style="font-family:var(--runic)">${st.rune}</text>`);
+  return `<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">${parts.join('')}</svg>`;
+}
+
+function bodySVG(armor, main, accent) {
+  const out = [`<path d="M6 122 C8 99 27 88 50 88 C73 88 92 99 94 122 Z" fill="${main}"/>`];
+  if (armor === 'plate') {
+    out.push(`<ellipse cx="24" cy="98" rx="14" ry="8" fill="${shade(main, .12)}" stroke="${shade(main, -.35)}"/>`);
+    out.push(`<ellipse cx="76" cy="98" rx="14" ry="8" fill="${shade(main, .12)}" stroke="${shade(main, -.35)}"/>`);
+    out.push(`<path d="M38 89 Q50 97 62 89 L60 96 Q50 101 40 96 Z" fill="${shade(main, -.15)}"/>`);
+    out.push(`<path d="M50 100 L50 122" stroke="${shade(main, -.3)}"/><path d="M44 104 L56 104" stroke="${accent}" stroke-width="2"/>`);
+  } else if (armor === 'leather') {
+    out.push(`<path d="M30 92 L66 122" stroke="${shade(main, -.35)}" stroke-width="5"/>`);
+    out.push(`<rect x="44" y="102" width="6" height="5" fill="${accent}"/>`);
+    out.push(`<path d="M36 88 Q50 95 64 88" fill="none" stroke="${shade(main, .2)}" stroke-width="2"/>`);
+  } else if (armor === 'robe') {
+    out.push(`<path d="M38 88 L50 108 L62 88 Z" fill="${accent}"/>`);
+    out.push(`<path d="M41 88 L50 103 L59 88" fill="${shade(main, -.25)}"/>`);
+    out.push(`<path d="M50 108 L50 122" stroke="${accent}" stroke-width="2"/>`);
+  } else if (armor === 'doublet') {
+    out.push(`<path d="M37 87 Q50 94 63 87 Q58 93 50 94 Q42 93 37 87" fill="#efe6d4"/>`);
+    for (let y = 99; y < 120; y += 6) out.push(`<circle cx="50" cy="${y}" r="1.4" fill="${accent}"/>`);
+  } else if (armor === 'fine') {
+    out.push(`<path d="M38 88 L50 104 L62 88" fill="none" stroke="${accent}" stroke-width="2.5"/>`);
+    out.push(`<circle cx="50" cy="106" r="3" fill="${accent}"/><path d="M14 112 L86 112" stroke="${accent}" stroke-opacity=".6"/>`);
+  } else {
+    out.push(`<path d="M44 88 L50 98 L56 88" fill="none" stroke="${shade(main, -.35)}" stroke-width="1.5"/>`);
+    out.push(`<path d="M46 92 L54 92 M47 95 L53 95" stroke="${accent}"/>`);
+  }
+  return out.join('');
+}
+
+function humanoidSVG(id, raza, st, L, hostil) {
+  const out = [];
+  const R = makeRng('detalle|' + id);
+  const skin = L.piel, skinD = shade(skin, -0.22), hair = L.pelo, accent = L.detalle, main = L.ropa;
+  const base = {
+    'Humano': [17, 21, 54], 'Elfo': [15.5, 21.5, 54], 'Enano': [19, 19, 55], 'Mediano': [16.5, 18, 57],
+    'Gnomo': [16, 17, 58], 'Semiorco': [19, 21, 54], 'Tiflin': [16.5, 21, 54], 'Dracónido': [16, 22, 54],
+  }[raza] || [17, 21, 54];
+  const rx = base[0] * L.caraAncho, ry = base[1] * L.caraAlto, cy = base[2], cx = 50;
+  const head = L.tocado;
+  const hs = L.peinado;
+  const covered = head === 'hood' || head === 'helmet' || head === 'wizard';
+
+  // Capa trasera: capucha o melena
+  if (head === 'hood') {
+    out.push(`<path d="M${cx - rx - 9} 96 Q${cx - rx - 11} ${cy - ry - 6} ${cx} ${cy - ry - 12} Q${cx + rx + 11} ${cy - ry - 6} ${cx + rx + 9} 96 Z" fill="${shade(main, -.1)}"/>`);
+  } else if (raza === 'Dracónido') {
+    // Sin pelo
+  } else if (hs === 'largo' || hs === 'trenza') {
+    out.push(`<path d="M${cx - rx - 3} ${cy - 4} Q${cx - rx - 6} ${cy + 26} ${cx - rx + 2} ${cy + 36} L${cx + rx - 2} ${cy + 36} Q${cx + rx + 6} ${cy + 26} ${cx + rx + 3} ${cy - 4} Z" fill="${shade(hair, -.15)}"/>`);
+  } else if (hs === 'salvaje') {
+    const pts = [];
+    for (let i = 0; i <= 12; i++) {
+      const a = Math.PI * (1.05 + i / 12 * -1.1) + Math.PI;
+      const rr = (i % 2 ? 1.25 : 1.45);
+      pts.push(`${(cx + Math.cos(a) * (rx + 6) * rr * .9).toFixed(1)},${(cy + 8 + Math.sin(a) * -(ry + 6) * rr * .9).toFixed(1)}`);
+    }
+    out.push(`<polygon points="${cx - rx - 2},${cy + 30} ${pts.join(' ')} ${cx + rx + 2},${cy + 30}" fill="${shade(hair, -.12)}"/>`);
+  } else if (hs === 'rizado') {
+    for (let i = 0; i < 9; i++) { const a = Math.PI * (1.05 + i / 8 * .9); out.push(`<circle cx="${(cx + Math.cos(a) * (rx + 2)).toFixed(1)}" cy="${(cy + 4 - Math.sin(a) * -(ry + 2)).toFixed(1)}" r="6" fill="${shade(hair, -.12)}"/>`); }
+  } else if (hs === 'coleta') {
+    out.push(`<path d="M${cx + rx - 4} ${cy - ry + 6} Q${cx + rx + 14} ${cy - 4} ${cx + rx + 6} ${cy + 28}" stroke="${shade(hair, -.15)}" stroke-width="7" fill="none" stroke-linecap="round"/>`);
+  }
+
+  const fem = L.sexo === 'mujer';
+  out.push(fem ? `<g transform="translate(50 122) scale(.88 1) translate(-50 -122)">${bodySVG(st.armor, main, accent)}</g>` : bodySVG(st.armor, main, accent));
+  out.push(`<rect x="${cx - (fem ? 5.5 : 8)}" y="${cy + 12}" width="${fem ? 11 : 16}" height="${88 - cy - 10}" fill="${skinD}"/>`);
+  if (!fem && raza !== 'Dracónido') out.push(`<path d="M${cx - 1.6} ${cy + ry + 8} Q${cx} ${cy + ry + 10.5} ${cx + 1.6} ${cy + ry + 8}" fill="none" stroke="${shade(skin, -.4)}" stroke-width=".7"/>`);
+  if (L.accesorio === 'collar') out.push(`<path d="M${cx - 9} 88 Q${cx} 98 ${cx + 9} 88" fill="none" stroke="#e2b65c" stroke-width="1"/><circle cx="${cx}" cy="96" r="2.4" fill="${L.gema}" filter="url(#${id}gl)"/>`);
+
+  // Orejas
+  const earY = cy + 2;
+  const ear = (side) => {
+    const x = cx + side * (rx - 1);
+    if (raza === 'Elfo') return `<path d="M${x} ${earY - 3} L${x + side * 13} ${earY - 13} L${x + side * 1} ${earY + 6} Z" fill="${skin}" stroke="${skinD}" stroke-width=".6"/>`;
+    if (raza === 'Gnomo') return `<path d="M${x} ${earY - 3} L${x + side * 8} ${earY - 8} L${x} ${earY + 6} Z" fill="${skin}" stroke="${skinD}" stroke-width=".6"/>`;
+    if (raza === 'Semiorco') return `<path d="M${x} ${earY - 3} L${x + side * 8} ${earY - 6} L${x} ${earY + 5} Z" fill="${skin}" stroke="${skinD}" stroke-width=".6"/>`;
+    if (raza === 'Dracónido') return '';
+    return `<ellipse cx="${x + side * 1.5}" cy="${earY}" rx="3.4" ry="5.4" fill="${skin}" stroke="${skinD}" stroke-width=".6"/>`;
+  };
+  out.push(ear(-1), ear(1));
+
+  // Cabeza
+  if (raza === 'Dracónido') {
+    out.push(`<path d="M${cx - rx} ${cy - 4} Q${cx - rx - 1} ${cy - ry} ${cx} ${cy - ry - 2} Q${cx + rx + 1} ${cy - ry} ${cx + rx} ${cy - 4} L${cx + 11} ${cy + 17} Q${cx} ${cy + 25} ${cx - 11} ${cy + 17} Z" fill="${skin}"/>`);
+    for (let i = 0; i < 7; i++) {
+      const sx = cx + R.range(-12, 12), sy = cy + R.range(-16, 12);
+      out.push(`<path d="M${sx - 2.5} ${sy} Q${sx} ${sy - 2.5} ${sx + 2.5} ${sy}" fill="none" stroke="${skinD}" stroke-width=".7"/>`);
+    }
+    out.push(`<path d="M${cx - rx + 2} ${cy - ry + 6} Q${cx - rx - 10} ${cy - ry - 2} ${cx - rx - 12} ${cy - ry - 12} Q${cx - rx - 4} ${cy - ry - 2} ${cx - rx + 6} ${cy - ry + 2} Z" fill="${shade(skin, -.4)}"/>`);
+    out.push(`<path d="M${cx + rx - 2} ${cy - ry + 6} Q${cx + rx + 10} ${cy - ry - 2} ${cx + rx + 12} ${cy - ry - 12} Q${cx + rx + 4} ${cy - ry - 2} ${cx + rx - 6} ${cy - ry + 2} Z" fill="${shade(skin, -.4)}"/>`);
+    out.push(`<circle cx="${cx - 3}" cy="${cy + 17}" r=".9" fill="#000"/><circle cx="${cx + 3}" cy="${cy + 17}" r=".9" fill="#000"/>`);
+  } else {
+    out.push(`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${skin}"/>`);
+    if (!fem) {
+      // Mandíbula angulosa y mentón plano
+      const w = raza === 'Semiorco' || raza === 'Enano' ? .5 : .38;
+      out.push(`<path d="M${cx - rx + .5} ${cy} L${cx - rx + 1.2} ${cy + ry * .55} Q${cx - rx * .8} ${cy + ry * .93} ${cx - rx * w} ${cy + ry + .5} L${cx + rx * w} ${cy + ry + .5} Q${cx + rx * .8} ${cy + ry * .93} ${cx + rx - 1.2} ${cy + ry * .55} L${cx + rx - .5} ${cy} Z" fill="${skin}"/>`);
+    } else {
+      // Mentón más fino y color en las mejillas
+      out.push(`<path d="M${cx - rx * .62} ${cy + ry * .72} Q${cx} ${cy + ry + 2.6} ${cx + rx * .62} ${cy + ry * .72} Z" fill="${skin}"/>`);
+      out.push(`<ellipse cx="${cx - rx * .55}" cy="${cy + 6}" rx="3.4" ry="2.1" fill="#e8506a" opacity=".3"/><ellipse cx="${cx + rx * .55}" cy="${cy + 6}" rx="3.4" ry="2.1" fill="#e8506a" opacity=".3"/>`);
+    }
+  }
+  out.push(`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="url(#${id}sh)"/>`);
+
+  // Ojos y cejas
+  const ey = cy - 1, ex = rx * L.ojosSep, es = L.ojosTam;
+  for (const side of [-1, 1]) {
+    const x = cx + side * ex;
+    if (L.accesorio === 'parche' && side === 1) {
+      out.push(`<ellipse cx="${x}" cy="${ey}" rx="${4.4 * es}" ry="${3.6 * es}" fill="#15110d"/><path d="M${cx - rx} ${ey - 6} L${cx + rx} ${ey - 1}" stroke="#15110d" stroke-width="1"/>`);
+    } else if (raza === 'Tiflin') {
+      out.push(`<ellipse cx="${x}" cy="${ey}" rx="${2.8 * es}" ry="${1.7 * es}" fill="${hueShift(L.ojos, 0, 1.3, .25)}" filter="url(#${id}gl)"/>`);
+    } else if (raza === 'Dracónido') {
+      out.push(`<ellipse cx="${x}" cy="${ey - 3}" rx="${3.2 * es}" ry="${2.2 * es}" fill="${hueShift(L.ojos, 0, 1.2, .2)}"/><ellipse cx="${x}" cy="${ey - 3}" rx=".7" ry="${2 * es}" fill="#111"/>`);
+    } else {
+      out.push(`<ellipse cx="${x}" cy="${ey}" rx="${3.5 * es}" ry="${2.3 * es}" fill="#f4efe6"/><circle cx="${x}" cy="${ey}" r="${1.7 * es}" fill="${L.ojos}"/><circle cx="${x}" cy="${ey}" r="${.8 * es}" fill="#111"/><circle cx="${x + .6}" cy="${ey - .6}" r=".4" fill="#fff"/>`);
+      out.push(`<path d="M${x - 3.6 * es} ${ey - .4} Q${x} ${ey - 3 * es} ${x + 3.6 * es} ${ey - .4}" fill="none" stroke="${shade(skin, -.4)}" stroke-width=".7"/>`);
+      if (fem) out.push(`<path d="M${x + side * 3.2 * es} ${ey - 1} L${x + side * 4.9 * es} ${ey - 2.6} M${x + side * 2.2 * es} ${ey - 1.8} L${x + side * 3.4 * es} ${ey - 3.4}" stroke="#1a1210" stroke-width="1.1" stroke-linecap="round"/>`);
+    }
+    const inner = hostil ? 2.5 : L.cejasInc;
+    const browCol = raza === 'Dracónido' ? shade(skin, -.45) : shade(hair, -.1);
+    const by = (raza === 'Dracónido' ? ey - 6.5 : ey - 4.8) - (es - 1) * 2;
+    out.push(`<path d="M${x + side * 4.5} ${by - .5} L${x - side * 4} ${by + inner}" stroke="${browCol}" stroke-width="${L.cejas}" stroke-linecap="round"/>`);
+  }
+
+  // Nariz, boca y colmillos
+  const my = cy + 13 * L.caraAlto;
+  if (raza !== 'Dracónido') {
+    const noses = {
+      recta: `M${cx} ${cy + 1} L${cx - 1.6} ${cy + 8} Q${cx} ${cy + 9.5} ${cx + 1.6} ${cy + 8}`,
+      ancha: `M${cx - 1} ${cy + 2} L${cx - 3} ${cy + 8} Q${cx} ${cy + 10} ${cx + 3} ${cy + 8} L${cx + 1} ${cy + 2}`,
+      aguilena: `M${cx} ${cy + 1} Q${cx + 3.2} ${cy + 5} ${cx + .5} ${cy + 9} Q${cx - 1} ${cy + 9.6} ${cx - 2.2} ${cy + 8.4}`,
+      respingona: `M${cx} ${cy + 2} Q${cx - 1.6} ${cy + 7} ${cx - 1} ${cy + 8.5} Q${cx + .5} ${cy + 8} ${cx + 2} ${cy + 7.4}`,
+      pequena: `M${cx - 1.2} ${cy + 7} Q${cx} ${cy + 8.2} ${cx + 1.2} ${cy + 7}`,
+    };
+    out.push(`<path d="${noses[L.nariz] || noses.recta}" fill="none" stroke="${skinD}" stroke-width="1"/>`);
+    if (L.accesorio === 'aro') out.push(`<circle cx="${cx + 1.6}" cy="${cy + 8.6}" r="1.1" fill="none" stroke="#e2b65c" stroke-width=".7"/>`);
+    const lip = shade(mix(skin, '#a03a3a', fem ? .55 : .35), fem ? -.15 : -.25);
+    const mouthCol = fem ? lip : shade(skin, -.45);
+    const sm = hostil ? -1.8 : L.sonrisa;
+    if (L.boca === 'carnosa') {
+      out.push(`<path d="M${cx - 5} ${my} Q${cx - 2} ${my - 2} ${cx} ${my - 1} Q${cx + 2} ${my - 2} ${cx + 5} ${my} Q${cx} ${my + 3.5 + sm * .4} ${cx - 5} ${my} Z" fill="${lip}"/>`);
+    } else if (L.boca === 'ladeada' && !hostil) {
+      out.push(`<path d="M${cx - 4.5} ${my} Q${cx} ${my + 1} ${cx + 5} ${my - 1.6}" fill="none" stroke="${mouthCol}" stroke-width="1.2" stroke-linecap="round"/>`);
+    } else if (L.boca === 'seria' && !hostil) {
+      out.push(`<path d="M${cx - 4} ${my} L${cx + 4} ${my}" stroke="${mouthCol}" stroke-width="1.2" stroke-linecap="round"/>`);
+    } else {
+      out.push(`<path d="M${cx - 4.5} ${my} Q${cx} ${my + sm} ${cx + 4.5} ${my}" fill="none" stroke="${mouthCol}" stroke-width="${fem ? 1.5 : 1.2}" stroke-linecap="round"/>`);
+    }
+    if (raza === 'Semiorco') out.push(`<path d="M${cx - 4} ${my} L${cx - 3.2} ${my - 4} L${cx - 2.4} ${my} Z M${cx + 4} ${my} L${cx + 3.2} ${my - 4} L${cx + 2.4} ${my} Z" fill="#f1ead8"/>`);
+  } else {
+    out.push(`<path d="M${cx - 7} ${cy + 12} Q${cx} ${cy + (hostil ? 11 : 14)} ${cx + 7} ${cy + 12}" fill="none" stroke="${shade(skin, -.5)}" stroke-width="1.2"/>`);
+  }
+
+  // Marcas en la cara
+  if (L.marca === 'cicatriz') out.push(`<path d="M${cx - ex - 4} ${ey - 7} L${cx - ex + 3} ${ey + 7}" stroke="#7a2a24" stroke-width="1" opacity=".85"/><path d="M${cx - ex - 3} ${ey - 3} L${cx - ex} ${ey - 4} M${cx - ex - 1} ${ey + 3} L${cx - ex + 2} ${ey + 2}" stroke="#7a2a24" stroke-width=".6" opacity=".7"/>`);
+  if (L.marca === 'pintura') out.push(`<path d="M${cx - ex - 3} ${ey + 4} L${cx - ex + 3} ${ey + 4} M${cx - ex - 3} ${ey + 6.5} L${cx - ex + 2} ${ey + 6.5} M${cx + ex - 3} ${ey + 4} L${cx + ex + 3} ${ey + 4} M${cx + ex - 2} ${ey + 6.5} L${cx + ex + 3} ${ey + 6.5}" stroke="${accent}" stroke-width="1.5" opacity=".85"/>`);
+  if (L.marca === 'pecas') for (let i = 0; i < 9; i++) out.push(`<circle cx="${(cx + R.range(-10, 10)).toFixed(1)}" cy="${(cy + R.range(2, 7)).toFixed(1)}" r=".5" fill="${skinD}"/>`);
+  if (L.marca === 'runa') out.push(`<text x="${cx + ex + 1}" y="${ey + 9}" font-size="6" text-anchor="middle" fill="${accent}" class="glow-rune" filter="url(#${id}gl)" style="font-family:var(--runic)">${R.pick([...'ᚠᚢᚦᚨᚱᚲᛉᛟᛞ'])}</text>`);
+  if (L.marca === 'lunar') out.push(`<circle cx="${cx + ex + 3}" cy="${my - 3}" r=".9" fill="${shade(skin, -.55)}"/>`);
+
+  // Barba
+  if (raza !== 'Dracónido') {
+    const bc = shade(hair, -.05);
+    if (L.barba === 'trenzada') {
+      out.push(`<path d="M${cx - rx + 1} ${cy + 2} Q${cx - rx} ${cy + 22} ${cx - 6} ${cy + 34} L${cx} ${cy + 46} L${cx + 6} ${cy + 34} Q${cx + rx} ${cy + 22} ${cx + rx - 1} ${cy + 2} Q${cx + 6} ${cy + 12} ${cx} ${cy + 11} Q${cx - 6} ${cy + 12} ${cx - rx + 1} ${cy + 2} Z" fill="${bc}"/>`);
+      out.push(`<path d="M${cx - 5} ${my + 2} Q${cx} ${my + 4.5} ${cx + 5} ${my + 2}" stroke="${shade(skin, -.5)}" stroke-width="1.2" fill="none"/>`);
+      for (let y = cy + 24; y < cy + 44; y += 5) out.push(`<path d="M${cx - 3} ${y} L${cx + 3} ${y + 2}" stroke="${shade(bc, -.3)}"/>`);
+      out.push(`<circle cx="${cx}" cy="${cy + 44}" r="2" fill="${accent}"/>`);
+    } else if (L.barba === 'completa') {
+      out.push(`<path d="M${cx - rx + 1} ${cy + 2} Q${cx - rx + 1} ${cy + ry + 4} ${cx} ${cy + ry + 6} Q${cx + rx - 1} ${cy + ry + 4} ${cx + rx - 1} ${cy + 2} Q${cx + 6} ${cy + 12} ${cx} ${cy + 11} Q${cx - 6} ${cy + 12} ${cx - rx + 1} ${cy + 2} Z" fill="${bc}"/>`);
+      out.push(`<path d="M${cx - 4.5} ${my + 1} Q${cx} ${my + 2.5} ${cx + 4.5} ${my + 1}" stroke="${shade(skin, -.5)}" stroke-width="1.2" fill="none"/>`);
+    } else if (L.barba === 'sombra') {
+      out.push(`<path d="M${cx - rx + 1.5} ${cy + 3} Q${cx - rx + 2} ${cy + ry + 2} ${cx} ${cy + ry + 3} Q${cx + rx - 2} ${cy + ry + 2} ${cx + rx - 1.5} ${cy + 3} Q${cx + 6} ${cy + 11} ${cx} ${my - 2.5} Q${cx - 6} ${cy + 11} ${cx - rx + 1.5} ${cy + 3} Z" fill="${bc}" opacity=".28"/>`);
+    } else if (L.barba === 'perilla') {
+      out.push(`<path d="M${cx - 3} ${my + 2} Q${cx} ${my + 11} ${cx + 3} ${my + 2} Z" fill="${bc}"/>`);
+    } else if (L.barba === 'bigote') {
+      out.push(`<path d="M${cx} ${my - 2.5} Q${cx - 4} ${my - 3.5} ${cx - 7} ${my + 1.5} Q${cx - 4} ${my - 1} ${cx} ${my - 1} Q${cx + 4} ${my - 1} ${cx + 7} ${my + 1.5} Q${cx + 4} ${my - 3.5} ${cx} ${my - 2.5} Z" fill="${bc}"/>`);
+    } else if (L.barba === 'patillas') {
+      out.push(`<path d="M${cx - rx + .5} ${cy - 2} L${cx - rx + 4} ${cy - 2} L${cx - rx + 5} ${cy + 10} L${cx - rx + 2} ${cy + 9} Z M${cx + rx - .5} ${cy - 2} L${cx + rx - 4} ${cy - 2} L${cx + rx - 5} ${cy + 10} L${cx + rx - 2} ${cy + 9} Z" fill="${bc}"/>`);
+    }
+  }
+
+  // Cuernos de tiflin
+  if (raza === 'Tiflin') {
+    const hc = shade(skin, -.6);
+    const hl = R.range(14, 22);
+    out.push(`<path d="M${cx - 7} ${cy - ry + 5} Q${cx - 20} ${cy - ry - 4} ${cx - 15} ${cy - ry - hl} Q${cx - 14} ${cy - ry - 6} ${cx - 3} ${cy - ry + 3} Z" fill="${hc}"/>`);
+    out.push(`<path d="M${cx + 7} ${cy - ry + 5} Q${cx + 20} ${cy - ry - 4} ${cx + 15} ${cy - ry - hl} Q${cx + 14} ${cy - ry - 6} ${cx + 3} ${cy - ry + 3} Z" fill="${hc}"/>`);
+  }
+
+  // Pelo frontal
+  const cap = `M${cx - rx - 1.5} ${cy - 1} Q${cx - rx - 1} ${cy - ry - 6} ${cx} ${cy - ry - 5.5} Q${cx + rx + 1} ${cy - ry - 6} ${cx + rx + 1.5} ${cy - 1} Q${cx + rx - 3} ${cy - ry + 5} ${cx + 3} ${cy - ry + 6} Q${cx - 6} ${cy - ry + 3} ${cx - rx - 1.5} ${cy - 1} Z`;
+  if (!covered && raza !== 'Dracónido') {
+    if (['corto', 'largo', 'trenza', 'coleta', 'mono', 'salvaje'].includes(hs)) out.push(`<path d="${cap}" fill="${hair}"/>`);
+    if (hs === 'mono') out.push(`<circle cx="${cx}" cy="${cy - ry - 7}" r="6" fill="${hair}"/><path d="M${cx - 5} ${cy - ry - 4} L${cx + 5} ${cy - ry - 4}" stroke="${accent}" stroke-width="1.2"/>`);
+    if (hs === 'coleta') out.push(`<circle cx="${cx + rx - 3}" cy="${cy - ry + 6}" r="2" fill="${accent}"/>`);
+    if (hs === 'rapado') out.push(`<path d="${cap}" fill="${hair}" opacity=".35"/>`);
+    if (hs === 'cresta') out.push(`<path d="M${cx - 3} ${cy - ry + 4} L${cx - 4} ${cy - ry - 8} L${cx - 1} ${cy - ry - 4} L${cx} ${cy - ry - 11} L${cx + 1} ${cy - ry - 4} L${cx + 4} ${cy - ry - 8} L${cx + 3} ${cy - ry + 4} Z" fill="${hair}"/>`);
+    if (hs === 'trenza') out.push(`<path d="M${cx + rx} ${cy} Q${cx + rx + 5} ${cy + 18} ${cx + rx - 1} ${cy + 32}" stroke="${shade(hair, -.2)}" stroke-width="4" fill="none" stroke-dasharray="3 1.5"/>`);
+    if (hs === 'rizado') for (let i = 0; i < 7; i++) { const a = Math.PI * (1.12 + i / 6 * .76); out.push(`<circle cx="${(cx + Math.cos(a) * rx * .9).toFixed(1)}" cy="${(cy - 3 + Math.sin(a) * ry * .95).toFixed(1)}" r="${(5.2 - Math.abs(i - 3) * .4).toFixed(1)}" fill="${hair}"/>`); }
+    if (hs === 'flequillo') {
+      out.push(`<path d="${cap}" fill="${hair}"/>`);
+      let d = `M${cx - rx - 1} ${cy - ry + 8}`;
+      for (let i = 0; i <= 6; i++) d += ` L${(cx - rx + i * rx / 3).toFixed(1)} ${(cy - ry + (i % 2 ? 13 : 9)).toFixed(1)}`;
+      out.push(`<path d="${d} L${cx + rx + 1} ${cy - ry + 2} L${cx - rx - 1} ${cy - ry + 2} Z" fill="${hair}"/>`);
+    }
+    if (hs === 'puntas') {
+      let d = `M${cx - rx - 1} ${cy - 2}`;
+      for (let i = 0; i <= 8; i++) { const a = Math.PI * (1 + i / 8); d += ` L${(cx + Math.cos(a) * (rx + (i % 2 ? 2 : 8))).toFixed(1)} ${(cy - 3 + Math.sin(a) * (ry + (i % 2 ? 2 : 9))).toFixed(1)}`; }
+      out.push(`<path d="${d} L${cx + rx + 1} ${cy - 2} Q${cx} ${cy - ry + 6} ${cx - rx - 1} ${cy - 2} Z" fill="${hair}"/>`);
+    }
+  }
+
+  // Tocados
+  if (head === 'hood') {
+    out.push(`<path d="M${cx - rx - 3} ${cy + 6} Q${cx - rx - 2} ${cy - ry - 3} ${cx} ${cy - ry - 4} Q${cx + rx + 2} ${cy - ry - 3} ${cx + rx + 3} ${cy + 6} L${cx + rx - 1} ${cy + 6} Q${cx + rx - 2} ${cy - ry + 7} ${cx} ${cy - ry + 7} Q${cx - rx + 2} ${cy - ry + 7} ${cx - rx + 1} ${cy + 6} Z" fill="${main}"/>`);
+    out.push(`<ellipse cx="${cx}" cy="${cy - ry + 10}" rx="${rx - 2}" ry="7" fill="#000" opacity=".28"/>`);
+  } else if (head === 'helmet') {
+    const metal = '#8d939c';
+    out.push(`<path d="M${cx - rx - 2} ${cy - 2} Q${cx - rx - 2} ${cy - ry - 7} ${cx} ${cy - ry - 7} Q${cx + rx + 2} ${cy - ry - 7} ${cx + rx + 2} ${cy - 2} L${cx + rx - 1} ${cy - 2} Q${cx + rx - 2} ${cy - ry + 4} ${cx} ${cy - ry + 4} Q${cx - rx + 2} ${cy - ry + 4} ${cx - rx + 1} ${cy - 2} Z" fill="${metal}" stroke="#3a3d42"/>`);
+    out.push(`<rect x="${cx - 1.4}" y="${cy - ry + 3}" width="2.8" height="${ry - 1}" fill="${metal}" stroke="#3a3d42" stroke-width=".5"/>`);
+    out.push(`<path d="M${cx - rx} ${cy - ry + 1} L${cx + rx} ${cy - ry + 1}" stroke="${accent}" stroke-width="1.5"/>`);
+    if (raza === 'Enano' || R.chance(.2)) out.push(`<path d="M${cx - rx} ${cy - ry - 2} Q${cx - rx - 12} ${cy - ry - 6} ${cx - rx - 10} ${cy - ry - 18} Q${cx - rx - 6} ${cy - ry - 8} ${cx - rx + 3} ${cy - ry - 5} Z M${cx + rx} ${cy - ry - 2} Q${cx + rx + 12} ${cy - ry - 6} ${cx + rx + 10} ${cy - ry - 18} Q${cx + rx + 6} ${cy - ry - 8} ${cx + rx - 3} ${cy - ry - 5} Z" fill="#e8dcc0"/>`);
+  } else if (head === 'wizard') {
+    out.push(`<path d="${cap}" fill="${hair}"/>`);
+    const tipX = cx + R.range(6, 14);
+    out.push(`<path d="M${cx - rx - 2} ${cy - ry + 2} Q${cx - 4} ${cy - ry - 18} ${tipX} ${cy - ry - 36} Q${cx + 6} ${cy - ry - 14} ${cx + rx + 2} ${cy - ry + 2} Z" fill="${main}"/>`);
+    out.push(`<ellipse cx="${cx}" cy="${cy - ry + 3}" rx="${rx + 11}" ry="4.5" fill="${shade(main, -.2)}"/>`);
+    out.push(`<path d="M${cx - rx - 1} ${cy - ry - 1} Q${cx} ${cy - ry - 4} ${cx + rx + 1} ${cy - ry - 1}" stroke="${accent}" stroke-width="2.2" fill="none"/>`);
+    out.push(`<text x="${cx + 1}" y="${cy - ry - 10}" font-size="7" fill="${accent}" text-anchor="middle" class="glow-rune" style="font-family:var(--runic)">ᚨ</text>`);
+  } else if (head === 'circlet') {
+    out.push(`<path d="M${cx - rx + 1} ${cy - ry + 7} Q${cx} ${cy - ry + 3} ${cx + rx - 1} ${cy - ry + 7}" stroke="${accent}" stroke-width="1.6" fill="none"/>`);
+    out.push(`<circle cx="${cx}" cy="${cy - ry + 4.5}" r="1.8" fill="${L.gema}" filter="url(#${id}gl)"/>`);
+  } else if (head === 'cap') {
+    out.push(`<ellipse cx="${cx - 2}" cy="${cy - ry + 1}" rx="${rx + 3}" ry="6" fill="${main}" transform="rotate(-8 ${cx} ${cy - ry})"/>`);
+    out.push(`<path d="M${cx + 6} ${cy - ry - 2} Q${cx + 22} ${cy - ry - 14} ${cx + 28} ${cy - ry - 26}" stroke="${accent}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`);
+  } else if (head === 'bandana') {
+    out.push(`<path d="M${cx - rx - 1} ${cy - ry + 8} Q${cx} ${cy - ry - 1} ${cx + rx + 1} ${cy - ry + 8} L${cx + rx} ${cy - ry + 4} Q${cx} ${cy - ry - 6} ${cx - rx} ${cy - ry + 4} Z" fill="${accent}"/>`);
+  } else if (head === 'merchant') {
+    out.push(`<ellipse cx="${cx}" cy="${cy - ry + 2}" rx="${rx + 4}" ry="4" fill="${shade(main, -.2)}"/><rect x="${cx - rx + 2}" y="${cy - ry - 8}" width="${2 * rx - 4}" height="10" rx="3" fill="${main}"/>`);
+  }
+
+  if (st.glow) out.push(`<text x="${cx}" y="${cy - ry + 12}" font-size="6" fill="${accent}" text-anchor="middle" class="glow-rune" filter="url(#${id}gl)" style="font-family:var(--runic)">ᛈ</text>`);
+  if (L.accesorio === 'pendiente' && raza !== 'Dracónido') out.push(`<circle cx="${cx - rx + 0.5}" cy="${earY + 6}" r="1.4" fill="none" stroke="#e2b65c"/><circle cx="${cx - rx + 0.5}" cy="${earY + 8}" r=".9" fill="${L.gema}"/>`);
+  return out.join('');
+}
+
+function creatureSVG(R, id, tipo, hostil) {
+  const out = [];
+  const eyeCol = hostil ? hsl(R.range(0, 20), 1, .58) : hsl(R.pick([45, 195, 130, 280]) + R.range(-15, 15), .9, .65);
+  const glowEye = (x, y, r = 2.4) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${eyeCol}" filter="url(#${id}gl)"/>`;
+  if (tipo === 'bestia') {
+    const fur = R.chance(.2) ? hsl(R.range(20, 40), .05, R.range(.5, .85)) : hsl(R.range(15, 40), R.range(.15, .6), R.range(.15, .45));
+    const ear = R.range(10, 20);
+    out.push(`<path d="M10 122 C14 98 30 86 50 86 C70 86 86 98 90 122 Z" fill="${shade(fur, -.25)}"/>`);
+    out.push(`<path d="M30 40 L24 ${34 - ear} L40 30 Z M70 40 L76 ${34 - ear} L60 30 Z" fill="${shade(fur, -.15)}"/>`);
+    out.push(`<path d="M28 42 Q50 22 72 42 Q76 62 62 74 L56 92 Q50 98 44 92 L38 74 Q24 62 28 42 Z" fill="${fur}"/>`);
+    out.push(`<path d="M42 70 Q50 66 58 70 L54 90 Q50 94 46 90 Z" fill="${shade(fur, .25)}"/>`);
+    if (R.chance(.5)) out.push(`<path d="M34 46 Q42 52 38 60 M66 46 Q58 52 62 60" stroke="${shade(fur, -.35)}" stroke-width="2" fill="none"/>`);
+    out.push(`<ellipse cx="50" cy="86" rx="4" ry="2.6" fill="#111"/>`);
+    out.push(glowEye(41, 54), glowEye(59, 54));
+    if (hostil) out.push(`<path d="M45 92 L46.5 97 L48 92 M52 92 L53.5 97 L55 92" fill="#f1ead8"/>`);
+  } else if (tipo === 'no_muerto') {
+    const bone = hsl(R.range(35, 55), R.range(.1, .3), R.range(.7, .85));
+    out.push(`<path d="M10 122 C14 98 30 88 50 88 C70 88 86 98 90 122 Z" fill="${hsl(R.range(240, 300), .15, .12)}"/><path d="M20 122 L28 98 M80 122 L72 98" stroke="#2c2834" stroke-width="3"/>`);
+    out.push(`<path d="M32 50 Q32 24 50 24 Q68 24 68 50 Q68 62 62 68 L60 80 L40 80 L38 68 Q32 62 32 50 Z" fill="${bone}"/>`);
+    if (R.chance(.4)) out.push(`<path d="M44 26 L48 38 L45 44" stroke="${shade(bone, -.4)}" fill="none"/>`);
+    out.push(`<ellipse cx="42" cy="52" rx="5.5" ry="6.5" fill="#15121a"/><ellipse cx="58" cy="52" rx="5.5" ry="6.5" fill="#15121a"/>`);
+    out.push(glowEye(42, 53, 1.8), glowEye(58, 53, 1.8));
+    out.push(`<path d="M50 60 L47 67 L53 67 Z" fill="#15121a"/>`);
+    for (let x = 42; x <= 57; x += 3) out.push(`<rect x="${x}" y="72" width="2.4" height="5" fill="#f1ead8" stroke="#8a8270" stroke-width=".4"/>`);
+  } else if (tipo === 'demonio') {
+    const sk = hsl(R.pick([0, 330, 280, 20]) + R.range(-10, 10), R.range(.4, .7), R.range(.18, .32));
+    const hl = R.range(14, 34);
+    out.push(`<path d="M8 122 C10 98 28 86 50 86 C72 86 90 98 92 122 Z" fill="#1a1012"/>`);
+    out.push(`<path d="M36 34 Q18 26 14 ${40 - hl} Q26 18 40 26 Z M64 34 Q82 26 86 ${40 - hl} Q74 18 60 26 Z" fill="#1f1a1a"/>`);
+    out.push(`<path d="M32 40 Q50 22 68 40 Q72 64 58 80 Q50 86 42 80 Q28 64 32 40 Z" fill="${sk}"/>`);
+    out.push(`<path d="M38 50 L46 54 M62 50 L54 54" stroke="#000" stroke-width="2"/>`);
+    out.push(glowEye(42, 56), glowEye(58, 56));
+    out.push(`<path d="M42 70 Q50 76 58 70" stroke="#000" stroke-width="1.5" fill="none"/><path d="M44 71 L45 76 L46 71.6 M56 71 L55 76 L54 71.6" fill="#f1ead8"/>`);
+  } else if (tipo === 'dragon') {
+    const sc = hsl(R.range(0, 360), R.range(.3, .7), R.range(.25, .55));
+    out.push(`<path d="M4 122 C8 96 28 84 50 84 C72 84 92 96 96 122 Z" fill="${shade(sc, -.35)}"/>`);
+    out.push(`<path d="M34 34 Q16 22 12 2 Q24 18 38 24 Z M66 34 Q84 22 88 2 Q76 18 62 24 Z" fill="#e8dcc0"/>`);
+    out.push(`<path d="M30 36 Q50 18 70 36 Q74 56 64 70 L60 92 Q50 100 40 92 L36 70 Q26 56 30 36 Z" fill="${sc}"/>`);
+    for (let i = 0; i < 10; i++) { const x = R.range(36, 64), y = R.range(32, 84); out.push(`<path d="M${x - 3} ${y} Q${x} ${y - 3} ${x + 3} ${y}" fill="none" stroke="${shade(sc, -.35)}" stroke-width=".8"/>`); }
+    out.push(`<ellipse cx="42" cy="50" rx="4" ry="2.6" fill="#f2c33a"/><ellipse cx="42" cy="50" rx=".8" ry="2.4" fill="#111"/><ellipse cx="58" cy="50" rx="4" ry="2.6" fill="#f2c33a"/><ellipse cx="58" cy="50" rx=".8" ry="2.4" fill="#111"/>`);
+    out.push(`<circle cx="46" cy="88" r="1.3" fill="#111"/><circle cx="54" cy="88" r="1.3" fill="#111"/>`);
+  } else if (tipo === 'constructo') {
+    const stone = hsl(R.range(0, 360), R.range(.03, .15), R.range(.35, .5));
+    out.push(`<path d="M6 122 L14 92 L86 92 L94 122 Z" fill="${shade(stone, -.2)}"/>`);
+    out.push(`<rect x="30" y="28" width="40" height="58" rx="4" fill="${stone}" stroke="${shade(stone, -.4)}"/>`);
+    out.push(`<path d="M34 40 L44 46 M60 34 L56 48 L62 56" stroke="${shade(stone, -.45)}" fill="none"/>`);
+    out.push(`<rect x="36" y="54" width="10" height="3" fill="${eyeCol}" filter="url(#${id}gl)"/><rect x="54" y="54" width="10" height="3" fill="${eyeCol}" filter="url(#${id}gl)"/>`);
+    out.push(`<text x="50" y="44" font-size="10" text-anchor="middle" fill="${eyeCol}" class="glow-rune" filter="url(#${id}gl)" style="font-family:var(--runic)">ᛝ</text>`);
+  } else {
+    const glow = hsl(R.range(170, 290), .7, .75);
+    out.push(`<g class="spirit" filter="url(#${id}gl)" opacity=".85">`);
+    out.push(`<path d="M20 122 Q30 96 50 90 Q70 96 80 122 Q70 112 62 120 Q56 108 50 118 Q44 108 38 120 Q30 112 20 122 Z" fill="${glow}" opacity=".35"/>`);
+    out.push(`<ellipse cx="50" cy="56" rx="18" ry="24" fill="${glow}" opacity=".45"/>`);
+    out.push(`<ellipse cx="43" cy="54" rx="3" ry="4" fill="#0b2433"/><ellipse cx="57" cy="54" rx="3" ry="4" fill="#0b2433"/>`);
+    out.push(`<ellipse cx="50" cy="70" rx="3" ry="4.5" fill="#0b2433" opacity=".7"/></g>`);
+  }
+  return out.join('');
+}
+
+// Mapa del mundo con niebla de guerra
+const MAP_W = 480, MAP_H = 340;
+const TERRAIN_COLORS = {
+  agua_profunda: '#3d5862', agua: '#55767a', arena: '#d8c398', llanura: '#cdb789', bosque: '#8f9a63',
+  pantano: '#7c8762', desierto: '#dcc48a', colina: '#b9a275', montana: '#94826a', nieve: '#ebe3d1',
+};
+const BIOMA_TERRENO = {
+  bosque: ['bosque'], montana: ['montana', 'colina'], nieve: ['nieve', 'montana'], desierto: ['desierto'],
+  pantano: ['pantano'], costa: ['arena'], llanura: ['llanura'], ciudad: ['llanura', 'colina', 'arena'],
+  aldea: ['llanura', 'bosque', 'colina'], templo: ['colina', 'llanura', 'montana'], ruinas: ['llanura', 'desierto', 'colina', 'bosque'],
+  cueva: ['colina', 'montana'], mazmorra: ['colina', 'montana', 'llanura'], volcan: ['montana'], mar: ['agua', 'arena'],
+};
+const terrainCache = new Map();
+
+function worldTerrain(seed) {
+  if (terrainCache.has(seed)) return terrainCache.get(seed);
+  const hN = makeNoise(seed + 'h'), mN = makeNoise(seed + 'm');
+  const H = new Float32Array(MAP_W * MAP_H), M = new Float32Array(MAP_W * MAP_H);
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const nx = x / MAP_W - .5, ny = y / MAP_H - .5;
+      const d = Math.sqrt(nx * nx * 1.1 + ny * ny * 1.7) * 2;
+      H[y * MAP_W + x] = hN(x / 95, y / 95, 5) + .42 - d * .62;
+      M[y * MAP_W + x] = mN(x / 80, y / 80, 3);
+    }
+  }
+  const classify = (x, y) => {
+    x = Math.max(0, Math.min(MAP_W - 1, Math.round(x))); y = Math.max(0, Math.min(MAP_H - 1, Math.round(y)));
+    const h = H[y * MAP_W + x], m = M[y * MAP_W + x];
+    if (h < .34) return 'agua_profunda';
+    if (h < .42) return 'agua';
+    if (h < .45) return 'arena';
+    if (h > .8) return 'nieve';
+    if (h > .7) return 'montana';
+    if (h > .62) return 'colina';
+    if (m < .38) return 'desierto';
+    if (m > .62 && h < .53) return 'pantano';
+    if (m > .52) return 'bosque';
+    return 'llanura';
+  };
+  const terrain = { H, M, classify, image: null };
+  terrainCache.set(seed, terrain);
+  return terrain;
+}
+
+// Elige una posición coherente con el bioma, cerca del lugar anterior.
+function placeLocation(seed, nombre, bioma, prev) {
+  const T = worldTerrain(seed);
+  const R = makeRng(seed + '|' + nombre);
+  const want = BIOMA_TERRENO[bioma];
+  const isLand = (t) => t !== 'agua' && t !== 'agua_profunda';
+  const inside = (x, y) => x > 20 && y > 20 && x < MAP_W - 20 && y < MAP_H - 20;
+  if (prev && (!want || bioma === 'interior')) {
+    return { x: prev.x + R.range(-6, 6), y: prev.y + R.range(-6, 6) };
+  }
+  const ox = prev ? prev.x : MAP_W / 2, oy = prev ? prev.y : MAP_H / 2;
+  const [dMin, dMax] = prev ? [28, 90] : [0, 130];
+  let fallback = null;
+  for (let i = 0; i < 500; i++) {
+    const a = R.range(0, Math.PI * 2), d = R.range(dMin, dMax);
+    const x = ox + Math.cos(a) * d, y = oy + Math.sin(a) * d;
+    if (!inside(x, y)) continue;
+    const t = T.classify(x, y);
+    if (want && want.includes(t)) return { x, y };
+    if (!fallback && isLand(t)) fallback = { x, y };
+  }
+  return fallback || { x: ox, y: oy };
+}
+
+function renderTerrainImage(seed) {
+  const T = worldTerrain(seed);
+  if (T.image) return T.image;
+  const S = 2;
+  const cv = document.createElement('canvas');
+  cv.width = MAP_W * S; cv.height = MAP_H * S;
+  const base = document.createElement('canvas');
+  base.width = MAP_W; base.height = MAP_H;
+  const bctx = base.getContext('2d');
+  const img = bctx.createImageData(MAP_W, MAP_H);
+  const grain = makeRng(seed + 'grain');
+  const isWater = (t) => t === 'agua' || t === 'agua_profunda';
+  for (let y = 0; y < MAP_H; y++) {
+    for (let x = 0; x < MAP_W; x++) {
+      const t = T.classify(x, y);
+      let [r, g, b] = hexToRgb(TERRAIN_COLORS[t]);
+      const i = y * MAP_W + x;
+      if (!isWater(t)) {
+        const h1 = T.H[i], h2 = T.H[Math.min(MAP_H - 1, y + 1) * MAP_W + Math.min(MAP_W - 1, x + 1)];
+        const light = Math.max(-.18, Math.min(.18, (h1 - h2) * 9));
+        r += light * 120; g += light * 110; b += light * 90;
+        const edge = isWater(T.classify(x + 1, y)) || isWater(T.classify(x - 1, y)) || isWater(T.classify(x, y + 1)) || isWater(T.classify(x, y - 1));
+        if (edge) { r = 58; g = 44; b = 28; }
+      } else {
+        const depth = (.42 - T.H[i]) * 2;
+        r -= depth * 30; g -= depth * 25; b -= depth * 15;
+      }
+      const n = (grain.next() - .5) * 14;
+      img.data[i * 4] = r + n; img.data[i * 4 + 1] = g + n; img.data[i * 4 + 2] = b + n * .8; img.data[i * 4 + 3] = 255;
+    }
+  }
+  bctx.putImageData(img, 0, 0);
+  const ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(base, 0, 0, cv.width, cv.height);
+
+  // Símbolos de tinta sobre el terreno
+  const R = makeRng(seed + 'glyphs');
+  ctx.lineWidth = 1.2;
+  for (let gy = 8; gy < MAP_H - 4; gy += 11) {
+    for (let gx = 8; gx < MAP_W - 4; gx += 11) {
+      const x = gx + R.range(-3, 3), y = gy + R.range(-3, 3);
+      const t = T.classify(x, y);
+      const X = x * S, Y = y * S;
+      if (t === 'bosque' && R.chance(.75)) {
+        ctx.fillStyle = '#4c5634'; ctx.beginPath(); ctx.moveTo(X, Y - 9); ctx.lineTo(X - 5, Y + 3); ctx.lineTo(X + 5, Y + 3); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = '#3a2c1c'; ctx.beginPath(); ctx.moveTo(X, Y + 3); ctx.lineTo(X, Y + 6); ctx.stroke();
+      } else if ((t === 'montana' || t === 'nieve') && R.chance(.7)) {
+        ctx.strokeStyle = '#3a2c1c'; ctx.fillStyle = t === 'nieve' ? '#f7f2e6' : '#7a6a54';
+        ctx.beginPath(); ctx.moveTo(X - 9, Y + 5); ctx.lineTo(X, Y - 10); ctx.lineTo(X + 9, Y + 5); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(X, Y - 10); ctx.lineTo(X + 3, Y + 5); ctx.stroke();
+      } else if (t === 'colina' && R.chance(.45)) {
+        ctx.strokeStyle = '#5a4630'; ctx.beginPath(); ctx.arc(X, Y + 4, 7, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
+      } else if (t === 'pantano' && R.chance(.5)) {
+        ctx.strokeStyle = '#4a5636'; ctx.beginPath(); ctx.moveTo(X - 4, Y); ctx.lineTo(X - 2, Y - 5); ctx.moveTo(X, Y); ctx.lineTo(X, Y - 7); ctx.moveTo(X + 4, Y); ctx.lineTo(X + 2, Y - 5); ctx.stroke();
+      } else if (t === 'desierto' && R.chance(.35)) {
+        ctx.strokeStyle = '#a8883f'; ctx.beginPath(); ctx.moveTo(X - 7, Y); ctx.quadraticCurveTo(X, Y - 5, X + 7, Y); ctx.stroke();
+      } else if (t === 'agua' && R.chance(.08)) {
+        ctx.strokeStyle = '#8fb0ae'; ctx.beginPath(); ctx.moveTo(X - 5, Y); ctx.quadraticCurveTo(X - 2, Y - 3, X, Y); ctx.quadraticCurveTo(X + 2, Y + 3, X + 5, Y); ctx.stroke();
+      }
+    }
+  }
+
+  // Marco, rosa de los vientos y viñeteado
+  const W = cv.width, Hh = cv.height;
+  const vg = ctx.createRadialGradient(W / 2, Hh / 2, Hh * .35, W / 2, Hh / 2, W * .65);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(40,24,8,.55)');
+  ctx.fillStyle = vg; ctx.fillRect(0, 0, W, Hh);
+  ctx.strokeStyle = '#3a2c1c'; ctx.lineWidth = 3; ctx.strokeRect(8, 8, W - 16, Hh - 16);
+  ctx.lineWidth = 1; ctx.strokeRect(16, 16, W - 32, Hh - 32);
+  ctx.save();
+  ctx.translate(W - 70, Hh - 70);
+  ctx.fillStyle = '#3a2c1c';
+  for (let k = 0; k < 4; k++) {
+    ctx.rotate(Math.PI / 2);
+    ctx.beginPath(); ctx.moveTo(0, -42); ctx.lineTo(7, 0); ctx.lineTo(-7, 0); ctx.closePath(); ctx.fill();
+  }
+  ctx.beginPath(); ctx.arc(0, 0, 26, 0, Math.PI * 2); ctx.stroke();
+  ctx.font = '16px "Noto Sans Runic", sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('ᚾ', 0, -48);
+  ctx.restore();
+  T.image = cv;
+  return cv;
+}
+
+function drawWorldMap(canvas, seed, lugares, actual) {
+  const S = 2;
+  const terrain = renderTerrainImage(seed);
+  const full = document.createElement('canvas');
+  full.width = terrain.width; full.height = terrain.height;
+  const fctx = full.getContext('2d');
+  fctx.drawImage(terrain, 0, 0);
+
+  // Niebla: solo se revela el entorno de los lugares visitados
+  const fog = document.createElement('canvas');
+  fog.width = full.width; fog.height = full.height;
+  const f = fog.getContext('2d');
+  f.fillStyle = '#1a140e'; f.fillRect(0, 0, fog.width, fog.height);
+  const R = makeRng(seed + 'fog');
+  f.fillStyle = '#e2b65c'; f.globalAlpha = .07; f.font = '22px "Noto Sans Runic", sans-serif';
+  for (let i = 0; i < 140; i++) f.fillText(R.pick([...'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ']), R.range(0, fog.width), R.range(0, fog.height));
+  f.globalAlpha = 1;
+  f.globalCompositeOperation = 'destination-out';
+  for (const p of lugares) {
+    const g = f.createRadialGradient(p.x * S, p.y * S, 20, p.x * S, p.y * S, 150);
+    g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    f.fillStyle = g; f.beginPath(); f.arc(p.x * S, p.y * S, 150, 0, Math.PI * 2); f.fill();
+  }
+  fctx.drawImage(fog, 0, 0);
+
+  // Encuadre: zona explorada con margen, manteniendo la proporción del mapa
+  const aspect = MAP_W / MAP_H;
+  const xs = lugares.length ? lugares.map((p) => p.x) : [0, MAP_W], ys = lugares.length ? lugares.map((p) => p.y) : [0, MAP_H];
+  let x0 = Math.min(...xs) - 75, x1 = Math.max(...xs) + 75, y0 = Math.min(...ys) - 60, y1 = Math.max(...ys) + 60;
+  let w = Math.max(x1 - x0, 200), h = Math.max(y1 - y0, 200 / aspect);
+  if (w / h > aspect) h = w / aspect; else w = h * aspect;
+  w = Math.min(w, MAP_W); h = Math.min(h, MAP_H);
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  x0 = Math.max(0, Math.min(MAP_W - w, cx - w / 2)); y0 = Math.max(0, Math.min(MAP_H - h, cy - h / 2));
+
+  canvas.width = 960; canvas.height = Math.round(960 / aspect);
+  const ctx = canvas.getContext('2d');
+  const k = canvas.width / w;
+  ctx.drawImage(full, x0 * S, y0 * S, w * S, h * S, 0, 0, canvas.width, canvas.height);
+  const tx = (p) => [(p.x - x0) * k, (p.y - y0) * k];
+  const u = canvas.width / 330; // Escala para que textos y marcas se lean con el ancho del panel
+
+  if (lugares.length > 1) {
+    ctx.strokeStyle = '#7a2a1f'; ctx.lineWidth = 1.6 * u; ctx.setLineDash([4 * u, 3.5 * u]);
+    ctx.beginPath();
+    lugares.forEach((p, i) => { const [X, Y] = tx(p); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); });
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  // Marcadores
+  lugares.forEach((p) => {
+    const isCur = p.nombre === actual;
+    const [X, Y] = tx(p);
+    ctx.fillStyle = isCur ? '#b8321f' : '#3a2c1c';
+    ctx.beginPath(); ctx.arc(X, Y, (isCur ? 5 : 3.5) * u, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#f3e6c8'; ctx.lineWidth = 1.2 * u; ctx.stroke();
+  });
+
+  // Nombres sin solaparse: el lugar actual primero y después los más recientes.
+  // Cada nombre prueba varias posiciones y se omite si ninguna queda libre (sigue en la lista bajo el mapa).
+  const ocupado = lugares.map((p) => { const [X, Y] = tx(p); const r = 6 * u; return { x: X - r, y: Y - r, w: 2 * r, h: 2 * r }; });
+  const choca = (a) => ocupado.some((b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y);
+  // Ajusta una posición para que el texto quede siempre dentro del mapa.
+  const dentro = (r) => ({ ...r, x: Math.min(Math.max(r.x, 4), canvas.width - 4 - r.w), y: Math.min(Math.max(r.y, 4), canvas.height - 4 - r.h) });
+  const orden = lugares.map((p, i) => ({ p, i })).sort((a, b) => (b.p.nombre === actual) - (a.p.nombre === actual) || b.i - a.i);
+  ctx.lineJoin = 'round';
+  ctx.textBaseline = 'middle';
+  for (const { p } of orden) {
+    const isCur = p.nombre === actual;
+    const [X, Y] = tx(p);
+    const size = (isCur ? 12.5 : 11) * u;
+    ctx.font = `${isCur ? 700 : 600} ${size}px "Crimson Pro", Georgia, serif`;
+    const texto = p.nombre.length > 24 ? p.nombre.slice(0, 23) + '…' : p.nombre;
+    const w = ctx.measureText(texto).width, h = size * 1.1, gap = 7 * u;
+    const opciones = [
+      { x: X - w / 2, y: Y - gap - h }, { x: X - w / 2, y: Y + gap },
+      { x: X + gap, y: Y - h / 2 }, { x: X - gap - w, y: Y - h / 2 },
+      { x: X + gap * .6, y: Y - gap - h }, { x: X - gap * .6 - w, y: Y + gap },
+    ];
+    const candidatas = opciones.map((o) => dentro({ ...o, w, h }));
+    const libre = candidatas.find((r) => !choca(r)) || (isCur ? candidatas[0] : null);
+    if (!libre) continue;
+    ocupado.push({ x: libre.x - 2 * u, y: libre.y - u, w: libre.w + 4 * u, h: libre.h + 2 * u });
+    ctx.textAlign = 'left';
+    ctx.lineWidth = 3.2 * u; ctx.strokeStyle = '#efe4c6'; ctx.strokeText(texto, libre.x, libre.y + h / 2);
+    ctx.fillStyle = isCur ? '#7a1f12' : '#2a1c10'; ctx.fillText(texto, libre.x, libre.y + h / 2);
+  }
+}
+
+// Escena animada del lugar actual
+const BIOMAS = ['bosque', 'montana', 'llanura', 'ciudad', 'aldea', 'cueva', 'mazmorra', 'pantano', 'desierto', 'costa', 'nieve', 'volcan', 'ruinas', 'interior', 'templo', 'mar'];
+const MOMENTOS = ['amanecer', 'dia', 'atardecer', 'noche'];
+const CLIMAS = ['despejado', 'nublado', 'lluvia', 'tormenta', 'nieve', 'niebla', 'viento'];
+const MOMENTO_LABEL = { amanecer: '🌅 Amanecer', dia: '☀️ Día', atardecer: '🌇 Atardecer', noche: '🌙 Noche' };
+const CLIMA_LABEL = { despejado: 'Despejado', nublado: '☁️ Nublado', lluvia: '🌧️ Lluvia', tormenta: '⛈️ Tormenta', nieve: '❄️ Nieve', niebla: '🌫️ Niebla', viento: '💨 Viento' };
+const INDOOR = new Set(['cueva', 'mazmorra', 'interior']);
+
+const SKY = {
+  amanecer: { top: '#2b3a6b', bottom: '#e8a07a', light: '#ffd9a0' },
+  dia: { top: '#3f78bd', bottom: '#b9d7ea', light: '#fff6d0' },
+  atardecer: { top: '#3a2350', bottom: '#f08a4b', light: '#ffb060' },
+  noche: { top: '#04060e', bottom: '#1b2440', light: '#e8ecf5' },
+};
+const GROUND = {
+  bosque: ['#2f4a2a', '#22381f'], montana: ['#5a5650', '#3f3c38'], llanura: ['#6f7f3e', '#56662f'],
+  ciudad: ['#5d5a3a', '#3a3330'], aldea: ['#5f6a38', '#4a3a2c'], pantano: ['#3c4a33', '#2f3d36'],
+  desierto: ['#c9a35c', '#a8833f'], costa: ['#cdb27a', '#2f6f8a'], nieve: ['#d8dde6', '#aab4c4'],
+  volcan: ['#3a2a26', '#241a18'], ruinas: ['#6a6450', '#8a8270'], templo: ['#6a6450', '#c8bfa6'], mar: ['#2a5f80', '#1f4a66'],
+};
+
+class SceneRenderer {
+  constructor(canvas) {
+    this.c = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.layer = document.createElement('canvas');
+    this.key = '';
+    this.parts = [];
+    this.raf = 0;
+    this.flash = 0;
+    this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    new ResizeObserver(() => this.resize()).observe(canvas);
+    document.addEventListener('visibilitychange', () => (document.hidden ? this.stop() : this.start()));
+  }
+
+  set(escena, seed) {
+    const key = JSON.stringify(escena) + seed;
+    if (key === this.key) return;
+    this.key = key;
+    this.escena = escena;
+    this.seed = seed;
+    this.build();
+    this.start();
+  }
+
+  resize() {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = Math.round(this.c.clientWidth * dpr), h = Math.round(this.c.clientHeight * dpr);
+    if (!w || !h || (w === this.c.width && h === this.c.height)) return;
+    this.c.width = w; this.c.height = h;
+    if (this.escena) this.build();
+  }
+
+  start() {
+    if (this.raf || !this.escena || document.hidden) return;
+    const loop = (t) => { this.frame(t / 1000); this.raf = this.reduced ? 0 : requestAnimationFrame(loop); };
+    this.raf = requestAnimationFrame(loop);
+  }
+
+  stop() { cancelAnimationFrame(this.raf); this.raf = 0; }
+
+  build() {
+    const W = this.c.width, H = this.c.height;
+    if (!W || !H) return;
+    // Los elementos animados de la escena anterior (mar, lava) no deben arrastrarse a la nueva.
+    this.lava = null;
+    this.sea = null;
+    this.layer.width = W; this.layer.height = H;
+    const ctx = this.layer.getContext('2d');
+    const { bioma, momento, clima } = this.escena;
+    const R = makeRng(this.seed);
+    this.R = R;
+    this.lights = [];
+    this.chimneys = [];
+    this.stars = [];
+    const sky = SKY[momento] || SKY.dia;
+    const cloudy = ['nublado', 'lluvia', 'tormenta', 'nieve'].includes(clima);
+    const night = momento === 'noche';
+    const tint = (c, depth) => {
+      let out = mix(c, cloudy ? mix(sky.bottom, '#5a6070', .5) : sky.bottom, depth);
+      if (night) out = mix(out, '#0a0d1a', .55);
+      if (momento === 'atardecer') out = mix(out, '#5a2a30', .2);
+      return out;
+    };
+    this.tint = tint;
+
+    if (INDOOR.has(bioma)) {
+      this.buildIndoor(ctx, W, H, R, bioma, night);
+    } else {
+      const top = cloudy ? mix(sky.top, '#3a3f4a', .55) : sky.top;
+      const bottom = cloudy ? mix(sky.bottom, '#6a707a', .5) : sky.bottom;
+      const g = ctx.createLinearGradient(0, 0, 0, H * .75);
+      g.addColorStop(0, top); g.addColorStop(1, bottom);
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      if (night && !cloudy) for (let i = 0; i < 90; i++) this.stars.push({ x: R.range(0, W), y: R.range(0, H * .55), r: R.range(.4, 1.6), p: R.range(0, 6) });
+      if (!cloudy) {
+        const sx = momento === 'amanecer' ? W * .18 : momento === 'atardecer' ? W * .82 : W * .7;
+        const sy = momento === 'dia' ? H * .2 : night ? H * .18 : H * .52;
+        const sr = H * (night ? .07 : .1);
+        const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr * 5);
+        glow.addColorStop(0, sky.light + 'aa'); glow.addColorStop(1, sky.light + '00');
+        ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = sky.light; ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill();
+        if (night) {
+          ctx.fillStyle = '#c9cfdc';
+          [[-.3, -.2, .22], [.25, .15, .16], [-.05, .35, .12], [.35, -.3, .1]].forEach(([dx, dy, r]) => { ctx.beginPath(); ctx.arc(sx + dx * sr, sy + dy * sr, r * sr, 0, Math.PI * 2); ctx.fill(); });
+        }
+      }
+      this.buildOutdoor(ctx, W, H, R, bioma, night, tint);
+    }
+
+    this.parts = [];
+    const add = (n, fn) => { for (let i = 0; i < n; i++) this.parts.push(fn()); };
+    if (clima === 'lluvia' || clima === 'tormenta') add(clima === 'tormenta' ? 160 : 90, () => ({ k: 'rain', x: R.range(0, W), y: R.range(0, H), v: R.range(.9, 1.3) }));
+    if (clima === 'nieve' || (bioma === 'nieve' && clima !== 'despejado')) add(80, () => ({ k: 'snow', x: R.range(0, W), y: R.range(0, H), v: R.range(.3, 1), p: R.range(0, 6) }));
+    if (clima === 'viento') add(30, () => ({ k: 'leaf', x: R.range(0, W), y: R.range(0, H), v: R.range(.8, 1.6), p: R.range(0, 6) }));
+    if (clima === 'niebla' || bioma === 'pantano') add(6, () => ({ k: 'fog', x: R.range(-W * .3, W), y: R.range(H * .45, H), v: R.range(.1, .3), s: R.range(.5, 1) }));
+    if ((bioma === 'bosque' || bioma === 'pantano' || bioma === 'llanura') && (night || momento === 'atardecer')) add(24, () => ({ k: 'firefly', x: R.range(0, W), y: R.range(H * .4, H), p: R.range(0, 6) }));
+    if (bioma === 'volcan' || INDOOR.has(bioma)) add(bioma === 'volcan' ? 60 : 20, () => ({ k: 'ember', x: R.range(0, W), y: R.range(0, H), v: R.range(.3, 1), p: R.range(0, 6) }));
+    if (bioma === 'desierto') add(40, () => ({ k: 'dust', x: R.range(0, W), y: R.range(H * .3, H), v: R.range(.3, 1), p: R.range(0, 6) }));
+    if (!cloudy && !INDOOR.has(bioma)) add(night ? 2 : 5, () => ({ k: 'cloud', x: R.range(-W * .3, W), y: R.range(H * .05, H * .35), v: R.range(.05, .15), s: R.range(.6, 1.3) }));
+    if (cloudy && !INDOOR.has(bioma)) add(9, () => ({ k: 'cloud', x: R.range(-W * .3, W), y: R.range(-H * .05, H * .3), v: R.range(.1, .25), s: R.range(1, 2) }));
+    this.parts.sort((a, b) => (b.k === 'cloud') - (a.k === 'cloud'));
+    this.chimneys.forEach((c) => add(6, () => ({ k: 'smoke', x: c.x, y: c.y - R.range(0, H * .3), x0: c.x, y0: c.y, v: R.range(.3, .6), p: R.range(0, 6) })));
+    this.frame(0);
+  }
+
+  ridge(R, W, baseY, amp, rough) {
+    const n = 64;
+    const pts = new Array(n + 1).fill(0);
+    pts[0] = R.range(-amp, amp); pts[n] = R.range(-amp, amp);
+    const div = (a, b, d) => {
+      if (b - a < 2) return;
+      const m = (a + b) >> 1;
+      pts[m] = (pts[a] + pts[b]) / 2 + R.range(-d, d);
+      div(a, m, d * rough); div(m, b, d * rough);
+    };
+    div(0, n, amp);
+    return pts.map((v, i) => [i / n * W, baseY + v]);
+  }
+
+  fillRidge(ctx, pts, H, color) {
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.moveTo(0, H);
+    pts.forEach(([x, y]) => ctx.lineTo(x, y));
+    ctx.lineTo(pts[pts.length - 1][0], H); ctx.closePath(); ctx.fill();
+  }
+
+  buildOutdoor(ctx, W, H, R, bioma, night, tint) {
+    const [g1, g2] = GROUND[bioma] || GROUND.llanura;
+    const mountainous = ['montana', 'nieve', 'volcan'].includes(bioma);
+    const farCol = tint(bioma === 'nieve' ? '#b8c2d4' : '#5a5a66', .6);
+    this.fillRidge(ctx, this.ridge(R, W, H * (mountainous ? .42 : .55), H * (mountainous ? .2 : .08), .55), H, farCol);
+    if (bioma === 'nieve' || bioma === 'montana') {
+      const rock = tint(shade(g2, -.1), .25), lit = tint(shade(g2, .15), .25), snowCap = tint('#f2f4f8', .2);
+      const peaks = Array.from({ length: R.int(4, 6) }, () => ({ x: R.range(-.05, 1.05) * W, h: H * R.range(.32, .55), w: W * R.range(.14, .26) }))
+        .sort((a, b) => a.h - b.h);
+      for (const pk of peaks) {
+        const base = H * .78, top = base - pk.h, jag = pk.w * .06;
+        const L = [[pk.x - pk.w / 2, base], [pk.x - pk.w * .28, top + pk.h * .45 + R.range(-jag, jag)], [pk.x - pk.w * .1, top + pk.h * .15], [pk.x, top]];
+        const Rr = [[pk.x + pk.w * .12, top + pk.h * .2], [pk.x + pk.w * .3, top + pk.h * .5 + R.range(-jag, jag)], [pk.x + pk.w / 2, base]];
+        ctx.fillStyle = rock; ctx.beginPath(); [...L, ...Rr].forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = lit; ctx.beginPath(); ctx.moveTo(pk.x, top); [...Rr].forEach(([x, y]) => ctx.lineTo(x, y)); ctx.lineTo(pk.x + pk.w * .05, base); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = snowCap; ctx.beginPath(); ctx.moveTo(pk.x, top);
+        ctx.lineTo(pk.x + pk.w * .1, top + pk.h * .22); ctx.lineTo(pk.x + pk.w * .02, top + pk.h * .17); ctx.lineTo(pk.x - pk.w * .05, top + pk.h * .25); ctx.lineTo(pk.x - pk.w * .1, top + pk.h * .16); ctx.closePath(); ctx.fill();
+      }
+    }
+    if (bioma === 'volcan') {
+      const vx = W * R.range(.35, .65);
+      ctx.fillStyle = tint('#2a1e1c', .2);
+      ctx.beginPath(); ctx.moveTo(vx - W * .28, H); ctx.lineTo(vx - W * .05, H * .25); ctx.lineTo(vx + W * .05, H * .25); ctx.lineTo(vx + W * .28, H); ctx.fill();
+      this.lava = { x: vx, y: H * .25 };
+      ctx.strokeStyle = '#ff6a2a'; ctx.lineWidth = Math.max(2, W * .004);
+      ctx.beginPath(); ctx.moveTo(vx - W * .01, H * .26); ctx.quadraticCurveTo(vx - W * .04, H * .6, vx - W * .08, H); ctx.stroke();
+    }
+    if (bioma === 'costa' || bioma === 'mar') {
+      this.sea = { y: H * (bioma === 'mar' ? .55 : .6) };
+      const sg = ctx.createLinearGradient(0, this.sea.y, 0, H);
+      sg.addColorStop(0, tint('#3d7f9a', .35)); sg.addColorStop(1, tint('#1f4a66', .1));
+      ctx.fillStyle = sg; ctx.fillRect(0, this.sea.y, W, H);
+      if (bioma === 'costa') this.fillRidge(ctx, this.ridge(R, W, H * .86, H * .04, .5), H, tint(g1, .1));
+    }
+    if (bioma === 'pantano') {
+      this.sea = { y: H * .72 };
+      ctx.fillStyle = tint('#2f3d36', .2); ctx.fillRect(0, H * .72, W, H);
+    }
+    if (bioma === 'desierto') {
+      ctx.fillStyle = tint('#a0663a', .45);
+      for (let k = 0; k < 3; k++) {
+        const mx = W * R.range(.05, .85), mw = W * R.range(.08, .18), mh = H * R.range(.12, .22);
+        ctx.beginPath(); ctx.moveTo(mx, H * .62); ctx.lineTo(mx + mw * .15, H * .62 - mh); ctx.lineTo(mx + mw * .85, H * .62 - mh); ctx.lineTo(mx + mw, H * .62); ctx.fill();
+      }
+      for (let k = 0; k < 3; k++) this.fillRidge(ctx, this.ridge(R, W, H * (.6 + k * .12), H * .05, .45), H, tint(shade(g1, -k * .08), .3 - k * .1));
+    } else if (!['costa', 'mar'].includes(bioma)) {
+      this.fillRidge(ctx, this.ridge(R, W, H * .68, H * .05, .5), H, tint(g1, .3));
+    }
+
+    const midY = H * .7;
+    const sc = H / 210;
+    if (bioma === 'bosque') {
+      for (let i = 0; i < 28; i++) this.pine(ctx, R.range(0, W), midY + R.range(-8, 10) * sc, R.range(40, 70) * sc, tint(g2, .35));
+      for (let i = 0; i < 14; i++) this.pine(ctx, R.range(0, W), H * .92 + R.range(-6, 6) * sc, R.range(60, 100) * sc, tint(shade(g2, -.3), .05));
+    } else if (bioma === 'llanura') {
+      for (let i = 0; i < 6; i++) this.roundTree(ctx, R.range(0, W), midY + R.range(0, 20) * sc, R.range(18, 30) * sc, tint(g2, .3));
+    } else if (bioma === 'pantano') {
+      for (let i = 0; i < 9; i++) this.deadTree(ctx, R.range(0, W), H * .75 + R.range(-5, 15) * sc, R.range(40, 80) * sc, tint('#1f2a22', .15), R);
+    } else if (bioma === 'ciudad' || bioma === 'aldea') {
+      const n = bioma === 'ciudad' ? 16 : 7;
+      for (let i = 0; i < n; i++) {
+        const x = (i + R.range(0, .7)) * W / n;
+        const tall = bioma === 'ciudad' && R.chance(.3);
+        this.house(ctx, x, H * .82, R.range(28, 46) * sc, R.range(tall ? 60 : 28, tall ? 90 : 46) * sc, tint(g2, .25), tint('#6a2a22', .25), night, R, tall);
+      }
+      if (bioma === 'ciudad') { ctx.fillStyle = tint('#4a4440', .1); ctx.fillRect(0, H * .86, W, H); }
+    } else if (bioma === 'ruinas' || bioma === 'templo') {
+      const stone = tint(g2, .2);
+      const n = bioma === 'templo' ? 7 : 6;
+      for (let i = 0; i < n; i++) this.column(ctx, W * (.1 + i * .8 / (n - 1)), H * .86, 14 * sc, (bioma === 'templo' ? 110 : R.range(40, 100)) * sc, stone, bioma === 'ruinas' && R.chance(.6), R);
+      if (bioma === 'templo') {
+        ctx.fillStyle = stone;
+        ctx.beginPath(); ctx.moveTo(W * .06, H * .86 - 110 * sc); ctx.lineTo(W * .5, H * .86 - 150 * sc); ctx.lineTo(W * .94, H * .86 - 110 * sc); ctx.fill();
+        if (!night) {
+          ctx.fillStyle = 'rgba(255,240,200,.08)';
+          for (let i = 0; i < 4; i++) { const x = W * R.range(.2, .8); ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + W * .05, 0); ctx.lineTo(x + W * .15, H); ctx.lineTo(x + W * .07, H); ctx.fill(); }
+        }
+      }
+    } else if (bioma === 'nieve') {
+      for (let i = 0; i < 10; i++) this.pine(ctx, R.range(0, W), midY + R.range(0, 20) * sc, R.range(30, 55) * sc, tint('#3a4a52', .3), '#f2f4f8');
+    }
+    ctx.fillStyle = tint(shade(g1, -.35), .02);
+    if (!['costa', 'mar'].includes(bioma)) ctx.fillRect(0, H * .94, W, H);
+  }
+
+  buildIndoor(ctx, W, H, R, bioma, night) {
+    const sc = H / 210;
+    if (bioma === 'interior') {
+      const wall = ctx.createLinearGradient(0, 0, 0, H);
+      wall.addColorStop(0, '#2a1a10'); wall.addColorStop(1, '#4a3020');
+      ctx.fillStyle = wall; ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = '#1e130b'; ctx.lineWidth = 2;
+      for (let x = 0; x < W; x += 34 * sc) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H * .8); ctx.stroke(); }
+      ctx.fillStyle = '#1a100a'; for (let x = 20; x < W; x += W / 4) ctx.fillRect(x, 0, 18 * sc, H * .8);
+      ctx.fillRect(0, H * .1, W, 12 * sc);
+      ctx.fillStyle = '#3a2416'; ctx.fillRect(0, H * .8, W, H);
+      const fx = W * R.range(.65, .85);
+      ctx.fillStyle = '#2a2420'; ctx.fillRect(fx - 50 * sc, H * .45, 100 * sc, H * .35);
+      ctx.fillStyle = '#0b0605'; ctx.fillRect(fx - 34 * sc, H * .55, 68 * sc, H * .25);
+      this.lights.push({ x: fx, y: H * .74, r: 140 * sc, c: '255,140,50' });
+      for (let i = 0; i < 3; i++) {
+        const tx = W * R.range(.08, .55);
+        ctx.fillStyle = '#24160d'; ctx.fillRect(tx - 34 * sc, H * .78, 68 * sc, 8 * sc); ctx.fillRect(tx - 28 * sc, H * .78, 6 * sc, H * .2); ctx.fillRect(tx + 22 * sc, H * .78, 6 * sc, H * .2);
+        ctx.fillStyle = '#f2e6c8'; ctx.fillRect(tx - 2 * sc, H * .74, 4 * sc, 10 * sc);
+        this.lights.push({ x: tx, y: H * .73, r: 50 * sc, c: '255,200,120' });
+      }
+    } else {
+      const base = bioma === 'cueva' ? '#1c1a1e' : '#1e1c1a';
+      ctx.fillStyle = base; ctx.fillRect(0, 0, W, H);
+      if (bioma === 'mazmorra') {
+        ctx.strokeStyle = '#0e0d0c'; ctx.lineWidth = 2;
+        for (let y = 0, r = 0; y < H; y += 20 * sc, r++) {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+          for (let x = (r % 2) * 22 * sc; x < W; x += 44 * sc) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 20 * sc); ctx.stroke(); }
+        }
+        const dx = W * .5;
+        ctx.fillStyle = '#060505'; ctx.beginPath(); ctx.moveTo(dx - 40 * sc, H); ctx.lineTo(dx - 40 * sc, H * .45); ctx.arc(dx, H * .45, 40 * sc, Math.PI, 0); ctx.lineTo(dx + 40 * sc, H); ctx.fill();
+        this.lights.push({ x: dx - 80 * sc, y: H * .4, r: 120 * sc, c: '255,150,60' }, { x: dx + 80 * sc, y: H * .4, r: 120 * sc, c: '255,150,60' });
+        ctx.fillStyle = '#3a2a1a';
+        for (const x of [dx - 80 * sc, dx + 80 * sc]) ctx.fillRect(x - 3 * sc, H * .42, 6 * sc, 22 * sc);
+      } else {
+        const g = ctx.createRadialGradient(W / 2, H * .7, 10, W / 2, H * .7, W * .6);
+        g.addColorStop(0, '#3a3236'); g.addColorStop(1, '#0c0b0d');
+        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = '#0a090b';
+        for (let x = 0; x < W; x += R.range(14, 30) * sc) { const l = R.range(15, 60) * sc; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + 7 * sc, l); ctx.lineTo(x + 14 * sc, 0); ctx.fill(); }
+        for (let x = 0; x < W; x += R.range(20, 50) * sc) { const l = R.range(10, 40) * sc; ctx.beginPath(); ctx.moveTo(x, H); ctx.lineTo(x + 9 * sc, H - l); ctx.lineTo(x + 18 * sc, H); ctx.fill(); }
+        if (R.chance(.6)) for (let i = 0; i < 7; i++) this.lights.push({ x: R.range(0, W), y: R.range(H * .3, H * .9), r: 26 * sc, c: '120,220,255', crystal: true });
+        this.lights.push({ x: W * R.range(.2, .8), y: H * .55, r: 110 * sc, c: '255,150,60' });
+      }
+    }
+  }
+
+  pine(ctx, x, y, h, color, snow) {
+    ctx.fillStyle = color;
+    for (let k = 0; k < 3; k++) {
+      const w = h * (.42 - k * .1), top = y - h + k * h * .22, bot = y - h * .25 + k * h * .12;
+      ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x - w, bot); ctx.lineTo(x + w, bot); ctx.closePath(); ctx.fill();
+      if (snow) { ctx.fillStyle = snow; ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x - w * .4, top + h * .12); ctx.lineTo(x + w * .4, top + h * .12); ctx.fill(); ctx.fillStyle = color; }
+    }
+    ctx.fillRect(x - h * .03, y - h * .25, h * .06, h * .25);
+  }
+
+  roundTree(ctx, x, y, s, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x - s * .08, y - s, s * .16, s);
+    [[0, -1.3, .7], [-.45, -1, .55], [.45, -1, .55]].forEach(([dx, dy, r]) => { ctx.beginPath(); ctx.arc(x + dx * s, y + dy * s, r * s, 0, Math.PI * 2); ctx.fill(); });
+  }
+
+  deadTree(ctx, x, y, h, color, R) {
+    ctx.strokeStyle = color; ctx.lineCap = 'round';
+    const branch = (bx, by, len, ang, w) => {
+      if (len < 6 || w < .6) return;
+      const ex = bx + Math.cos(ang) * len, ey = by + Math.sin(ang) * len;
+      ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(ex, ey); ctx.stroke();
+      branch(ex, ey, len * .7, ang - R.range(.3, .7), w * .65);
+      branch(ex, ey, len * .65, ang + R.range(.3, .7), w * .65);
+    };
+    branch(x, y, h * .45, -Math.PI / 2 + R.range(-.2, .2), h * .08);
+  }
+
+  house(ctx, x, y, w, h, color, roof, night, R, tower) {
+    ctx.fillStyle = color; ctx.fillRect(x, y - h, w, h);
+    ctx.fillStyle = roof; ctx.beginPath();
+    if (tower) { ctx.moveTo(x - w * .1, y - h); ctx.lineTo(x + w / 2, y - h - w * 1.1); ctx.lineTo(x + w * 1.1, y - h); }
+    else { ctx.moveTo(x - w * .12, y - h); ctx.lineTo(x + w / 2, y - h - w * .5); ctx.lineTo(x + w * 1.12, y - h); }
+    ctx.fill();
+    const lit = night || this.escena.momento === 'atardecer';
+    const rows = Math.max(1, Math.floor(h / (w * .55)));
+    for (let r = 0; r < rows; r++) {
+      for (const fx of [.22, .62]) {
+        const on = lit && R.chance(.6);
+        ctx.fillStyle = on ? '#ffcf6a' : shade(color, -.35);
+        ctx.fillRect(x + w * fx, y - h + w * .2 + r * w * .55, w * .16, w * .22);
+        if (on) this.lights.push({ x: x + w * (fx + .08), y: y - h + w * .3 + r * w * .55, r: w * .5, c: '255,200,100', soft: true });
+      }
+    }
+    if (!tower && R.chance(.5)) { ctx.fillStyle = shade(color, -.2); ctx.fillRect(x + w * .7, y - h - w * .45, w * .12, w * .3); this.chimneys.push({ x: x + w * .76, y: y - h - w * .45 }); }
+  }
+
+  column(ctx, x, y, w, h, color, broken, R) {
+    const top = broken ? y - h * R.range(.3, .8) : y - h;
+    ctx.fillStyle = color;
+    ctx.fillRect(x - w / 2, top, w, y - top);
+    ctx.fillStyle = shade(color, .15);
+    ctx.fillRect(x - w * .7, y - 6, w * 1.4, 6);
+    if (!broken) ctx.fillRect(x - w * .75, top - 5, w * 1.5, 6);
+    else { ctx.beginPath(); ctx.moveTo(x - w / 2, top); ctx.lineTo(x - w * .1, top - 6); ctx.lineTo(x + w / 2, top + 3); ctx.fill(); }
+  }
+
+  frame(t) {
+    const ctx = this.ctx, W = this.c.width, H = this.c.height;
+    if (!W || !H || !this.layer.width) return;
+    const dt = this.last ? Math.min(.05, t - this.last) : .016;
+    this.last = t;
+    const { clima, momento } = this.escena;
+    ctx.drawImage(this.layer, 0, 0);
+
+    for (const s of this.stars) {
+      ctx.globalAlpha = .4 + .6 * Math.abs(Math.sin(t * 1.3 + s.p));
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    if (this.sea) {
+      ctx.strokeStyle = momento === 'noche' ? 'rgba(200,220,255,.18)' : 'rgba(255,255,255,.25)';
+      ctx.lineWidth = 1.5;
+      for (let i = 0; i < 14; i++) {
+        const y = this.sea.y + (i + 1) * (H - this.sea.y) / 15;
+        const off = Math.sin(t * .8 + i) * 20;
+        ctx.beginPath();
+        for (let x = -20; x < W + 20; x += 60) { ctx.moveTo(x + off + (i % 2) * 30, y); ctx.lineTo(x + off + 20 + (i % 2) * 30, y); }
+        ctx.stroke();
+      }
+    }
+
+    if (this.lava) {
+      const pulse = .5 + .5 * Math.sin(t * 2);
+      const g = ctx.createRadialGradient(this.lava.x, this.lava.y, 0, this.lava.x, this.lava.y, H * .5);
+      g.addColorStop(0, `rgba(255,110,40,${.45 + pulse * .25})`); g.addColorStop(1, 'rgba(255,80,20,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    }
+
+    ctx.globalCompositeOperation = 'lighter';
+    for (const L of this.lights) {
+      const fl = L.soft ? 1 : .75 + .25 * Math.sin(t * 9 + L.x) * Math.sin(t * 13 + L.y);
+      const g = ctx.createRadialGradient(L.x, L.y, 0, L.x, L.y, L.r * fl);
+      g.addColorStop(0, `rgba(${L.c},${L.crystal ? .5 * (.6 + .4 * Math.sin(t * 2 + L.x)) : .45})`); g.addColorStop(1, `rgba(${L.c},0)`);
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(L.x, L.y, L.r * fl, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+
+    const sc = H / 210;
+    for (const p of this.parts) {
+      switch (p.k) {
+        case 'rain':
+          p.y += 700 * p.v * dt * sc; p.x -= 120 * dt * sc;
+          if (p.y > H) { p.y = -10; p.x = Math.random() * W * 1.2; }
+          ctx.strokeStyle = 'rgba(200,215,240,.6)'; ctx.lineWidth = Math.max(1, sc * 1.1);
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - 4 * sc, p.y + 16 * sc); ctx.stroke();
+          break;
+        case 'snow':
+          p.y += 30 * p.v * dt * sc; p.x += Math.sin(t + p.p) * 12 * dt * sc;
+          if (p.y > H) { p.y = -5; p.x = Math.random() * W; }
+          ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.arc(p.x, p.y, 1.6 * sc * p.v + .6, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 'leaf':
+          p.x += 160 * p.v * dt * sc; p.y += Math.sin(t * 3 + p.p) * 30 * dt * sc;
+          if (p.x > W + 10) { p.x = -10; p.y = Math.random() * H; }
+          ctx.fillStyle = 'rgba(190,150,70,.8)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 3 * sc, 1.5 * sc, t * 4 + p.p, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 'fog': {
+          p.x += 18 * p.v * dt * sc;
+          if (p.x > W) p.x = -W * .6;
+          const g = ctx.createRadialGradient(p.x + W * .3, p.y, 0, p.x + W * .3, p.y, W * .35 * p.s);
+          g.addColorStop(0, 'rgba(210,215,220,.28)'); g.addColorStop(1, 'rgba(210,215,220,0)');
+          ctx.fillStyle = g; ctx.fillRect(p.x - W * .1, p.y - H * .5, W * .8, H);
+          break;
+        }
+        case 'firefly': {
+          const x = p.x + Math.sin(t * .7 + p.p) * 20 * sc, y = p.y + Math.cos(t * .9 + p.p) * 12 * sc;
+          const a = Math.max(0, Math.sin(t * 2 + p.p));
+          const g = ctx.createRadialGradient(x, y, 0, x, y, 6 * sc);
+          g.addColorStop(0, `rgba(220,255,140,${a})`); g.addColorStop(1, 'rgba(220,255,140,0)');
+          ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 6 * sc, 0, Math.PI * 2); ctx.fill();
+          break;
+        }
+        case 'ember':
+          p.y -= 40 * p.v * dt * sc; p.x += Math.sin(t * 2 + p.p) * 10 * dt * sc;
+          if (p.y < -5) { p.y = H + 5; p.x = Math.random() * W; }
+          ctx.fillStyle = `rgba(255,${120 + Math.floor(80 * Math.sin(t * 5 + p.p) ** 2)},40,${.5 + .5 * Math.sin(t * 3 + p.p) ** 2})`;
+          ctx.beginPath(); ctx.arc(p.x, p.y, 1.4 * sc, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 'dust':
+          p.x += 40 * p.v * dt * sc; if (p.x > W) p.x = 0;
+          ctx.fillStyle = 'rgba(240,220,170,.35)'; ctx.beginPath(); ctx.arc(p.x, p.y + Math.sin(t + p.p) * 4, 1.2 * sc, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 'cloud': {
+          p.x += 8 * p.v * dt * sc * 3;
+          if (p.x > W * 1.1) p.x = -W * .4;
+          const dark = clima === 'tormenta' ? '70,74,86' : clima === 'despejado' ? '255,255,255' : '150,155,165';
+          ctx.fillStyle = `rgba(${dark},${momento === 'noche' ? .25 : .55})`;
+          for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.ellipse(p.x + k * 26 * p.s * sc, p.y + (k % 2) * 6 * sc, 30 * p.s * sc, 13 * p.s * sc, 0, 0, Math.PI * 2); ctx.fill(); }
+          break;
+        }
+        case 'smoke':
+          p.y -= 14 * p.v * dt * sc; p.x += Math.sin(t + p.p) * 6 * dt * sc;
+          if (p.y < p.y0 - H * .35) { p.y = p.y0; p.x = p.x0; }
+          ctx.fillStyle = `rgba(160,160,160,${.25 * (1 - (p.y0 - p.y) / (H * .35))})`;
+          ctx.beginPath(); ctx.arc(p.x, p.y, (3 + (p.y0 - p.y) * .08) * sc, 0, Math.PI * 2); ctx.fill();
+          break;
+      }
+    }
+
+    if (clima === 'tormenta') {
+      if (this.flash <= 0 && Math.random() < .004) this.flash = 1;
+      if (this.flash > 0) { ctx.fillStyle = `rgba(230,235,255,${this.flash * .6})`; ctx.fillRect(0, 0, W, H); this.flash -= dt * 3; }
+    }
+  }
+}
+
+// Configuración. La clave de Gemini se guarda en las Propiedades del script de Apps Script,
+// nunca en este archivo, por lo que puede publicarse en GitHub.
+const GEMINI_PROXY_URL = 'https://script.google.com/macros/s/AKfycbzrGH58mRt_KyG2n_OshyWqaRfvz-yvGIfRnvQPQRIp0wTcFIbVoAyIK4KGD5hI6HBE/exec';
+const SAVES_KEY = 'cronicas.saves.v1';
+const HISTORY_WINDOW = 16;    // Entradas recientes enviadas literalmente al narrador
+const CHRONICLE_WINDOW = 80;  // Notas de crónica máximas incluidas en el contexto
+const MAX_PRESENTES = 4;
+const MAX_HISTORY = 400;      // Entradas del registro guardadas por partida (la crónica conserva lo esencial)
+const TIMEOUT_MS = 120000;    // Tiempo máximo de espera de una respuesta del narrador
+
+// Datos de reglas (simplificación de D&D 5e)
+const STATS = ['FUE', 'DES', 'CON', 'INT', 'SAB', 'CAR'];
+const STAT_NAMES = { FUE: 'Fuerza', DES: 'Destreza', CON: 'Constitución', INT: 'Inteligencia', SAB: 'Sabiduría', CAR: 'Carisma' };
+
+const RACES = {
+  'Humano':    { FUE: 1, DES: 1, CON: 1, INT: 1, SAB: 1, CAR: 1 },
+  'Elfo':      { DES: 2, INT: 1 },
+  'Enano':     { CON: 2, FUE: 1 },
+  'Mediano':   { DES: 2, CAR: 1 },
+  'Gnomo':     { INT: 2, CON: 1 },
+  'Semiorco':  { FUE: 2, CON: 1 },
+  'Tiflin':    { CAR: 2, INT: 1 },
+  'Dracónido': { FUE: 2, CAR: 1 },
+};
+
+// dado: dado de golpe; prof: atributos con competencia en tiradas.
+const CLASSES = {
+  'Guerrero':   { dado: 10, prof: ['FUE', 'CON'], equipo: ['Espada larga', 'Escudo', 'Cota de mallas', 'Poción de curación'] },
+  'Pícaro':     { dado: 8,  prof: ['DES', 'INT'], equipo: ['Dos dagas', 'Herramientas de ladrón', 'Armadura de cuero', 'Capa oscura'] },
+  'Mago':       { dado: 6,  prof: ['INT', 'SAB'], equipo: ['Bastón arcano', 'Libro de conjuros', 'Bolsa de componentes', 'Poción de curación'] },
+  'Clérigo':    { dado: 8,  prof: ['SAB', 'CAR'], equipo: ['Maza', 'Símbolo sagrado', 'Escudo', 'Poción de curación'] },
+  'Explorador': { dado: 10, prof: ['DES', 'SAB'], equipo: ['Arco largo', 'Carcaj con 20 flechas', 'Espada corta', 'Kit de supervivencia'] },
+  'Bardo':      { dado: 8,  prof: ['DES', 'CAR'], equipo: ['Laúd', 'Estoque', 'Armadura de cuero', 'Ropa elegante'] },
+  'Paladín':    { dado: 10, prof: ['FUE', 'CAR'], equipo: ['Martillo de guerra', 'Escudo', 'Cota de mallas', 'Símbolo sagrado'] },
+  'Brujo':      { dado: 8,  prof: ['SAB', 'CAR'], equipo: ['Foco arcano', 'Daga', 'Armadura de cuero', 'Grimorio del pacto'] },
+};
+
+const XP_LEVELS = [0, 300, 900, 2700, 6500, 14000, 23000, 34000, 48000, 64000];
+const MAX_LEVEL = XP_LEVELS.length;
+
+// Semillas aleatorias que garantizan que cada campaña parta de premisas distintas.
+const SEED_THEMES = [
+  'una plaga mágica que convierte la memoria en cristal', 'un dios olvidado que despierta', 'una guerra entre gremios de magos',
+  'una ciudad que aparece solo con luna nueva', 'un portal al Feywild que se está cerrando', 'un dragón que ha perdido su tesoro y su cordura',
+  'una conspiración en la corte de un reino en decadencia', 'una expedición a ruinas bajo el hielo', 'una maldición familiar que se hereda con el nombre',
+  'un archipiélago dominado por piratas y krakens', 'un bosque que devora a quienes mienten', 'un torneo cuyos perdedores desaparecen',
+  'una torre que crece un piso cada noche', 'un culto que adora a una estrella moribunda', 'un desierto con ciudades enterradas que despiertan',
+  'una frontera donde los muertos no descansan', 'un artefacto que concede deseos con un precio oculto', 'una rebelión de autómatas en una ciudad enana',
+];
+const SEED_TWISTS = [
+  'el aliado más cercano oculta una verdad terrible', 'el antagonista cree sinceramente estar salvando el mundo',
+  'el personaje está ligado al origen del conflicto sin saberlo', 'el mapa que guía al héroe es una trampa',
+  'una profecía ha sido malinterpretada durante siglos', 'el verdadero enemigo es una institución respetada',
+  'el tiempo no transcurre igual en todos los lugares', 'una criatura temida resulta ser la víctima',
+];
+const SEED_ATMOSPHERES = ['otoño eterno', 'tormentas perpetuas', 'tierras volcánicas', 'pantanos brumosos', 'montañas nevadas', 'costa tropical', 'llanuras doradas', 'subterráneo luminiscente'];
+
+// Voz del narrador: cada campaña tiene la suya para que no todas suenen igual.
+const VOCES = [
+  'seca y directa: frases cortas, como un veterano que cuenta lo que pasa sin adornos',
+  'irónica, con humor negro, sin perder la tensión',
+  'sobria y evocadora: pocos adjetivos, bien elegidos',
+  'cruda y terrenal: barro, sudor, hambre, frío y deudas',
+  'de cuentacuentos de taberna: cercana, con algún giro coloquial',
+  'tensa y cinematográfica: planos cortos, acción y silencios',
+];
+
+// Sílabas por cultura para crear nombres propios de cada campaña.
+const LENGUAS = {
+  nortena: { ini: ['Br', 'Gr', 'Th', 'Sk', 'Hj', 'Ul', 'Ey', 'Vig', 'Rag', 'Tor', 'Sig', 'Kol', 'Hal', 'Ste', 'Ingr'], mid: ['a', 'e', 'i', 'o', 'u', 'ei', 'au'], fin: ['rn', 'ld', 'dis', 'gar', 'mund', 'rik', 'vald', 'hild', 'ny', 'stein', 'ulf', 'vor', 'unn', 'bjorg'] },
+  iberica: { ini: ['Al', 'Ber', 'Cas', 'Dom', 'Gar', 'Ib', 'Lop', 'Mar', 'Ner', 'Or', 'Sal', 'Teb', 'Ur', 'Xim', 'Mend', 'Ech'], mid: ['a', 'e', 'i', 'o', 'ia', 'ue'], fin: ['go', 'ra', 'zar', 'dón', 'iel', 'ena', 'ano', 'iz', 'oa', 'eda', 'ín', 'és', 'uri', 'aga'] },
+  eslava: { ini: ['Bo', 'Dra', 'Ka', 'Lu', 'Mi', 'Ra', 'Sve', 'Vla', 'Zo', 'Ya', 'Kse', 'Mro', 'Dob', 'Vo', 'Ze'], mid: ['ro', 'zi', 'mi', 'la', 'sla', 'ko', 've'], fin: ['slav', 'mir', 'na', 'ka', 'vek', 'ta', 'ra', 'ja', 'dan', 'grad', 'ec', 'va', 'nja'] },
+  celta: { ini: ['Bri', 'Cai', 'Dun', 'Eo', 'Fia', 'Gwe', 'Llo', 'Mor', 'Rho', 'Tal', 'Cer', 'Ow', 'Bran', 'Sei'], mid: ['a', 'e', 'i', 'o', 'ae', 'wy'], fin: ['n', 'nach', 'ric', 'wen', 'dd', 'gan', 'lin', 'ith', 'mor', 'ne', 'rid', 'ghe'] },
+  desertica: { ini: ['Az', 'Ka', 'Ha', 'Sa', 'Ra', 'Ta', 'Ze', 'Ib', 'Na', 'Qa', 'Fa', 'Ju'], mid: ['ri', 'ma', 'hi', 'sa', 'la', 'da', 'mi'], fin: ['im', 'ud', 'ra', 'eth', 'ar', 'in', 'iya', 'an', 'ul', 'ash', 'ur', 'ida'] },
+  latina: { ini: ['Aur', 'Cor', 'Fla', 'Liv', 'Mar', 'Oct', 'Ser', 'Ter', 'Cass', 'Dec', 'Pom', 'Sev'], mid: ['e', 'i', 'a', 'u'], fin: ['ius', 'ia', 'an', 'or', 'ina', 'us', 'ella', 'ic', 'illa', 'ento'] },
+};
+// Topónimos con concordancia de género: [nombre, 'm' | 'f'] y adjetivos [masculino, femenino].
+const TOPONIMOS = {
+  pre: [['Vado', 'm'], ['Peña', 'f'], ['Hoya', 'f'], ['Torre', 'f'], ['Fuente', 'f'], ['Cerro', 'm'], ['Molino', 'm'], ['Arroyo', 'm'], ['Collado', 'm'], ['Pozo', 'm'], ['Barranco', 'm'], ['Puerto', 'm'], ['Atalaya', 'f'], ['Cruce', 'm']],
+  adj: [['Amargo', 'Amarga'], ['Negro', 'Negra'], ['Quemado', 'Quemada'], ['Seco', 'Seca'], ['Hondo', 'Honda'], ['Viejo', 'Vieja'], ['Partido', 'Partida'], ['Malo', 'Mala'], ['Rojo', 'Roja'], ['Callado', 'Callada']],
+  de: ['del Cuervo', 'del Rey', 'de Sal', 'del Lobo', 'de los Ahorcados', 'de la Viuda', 'del Tuerto', 'de las Ánimas', 'del Fraile', 'de las Cabras'],
+};
+
+// Sabor propio de una campaña (voz y nombres), siempre igual para la misma semilla.
+function campaignFlavor(seed) {
+  const R = makeRng('sabor|' + seed);
+  const lenguas = [R.pick(Object.keys(LENGUAS)), R.pick(Object.keys(LENGUAS))];
+  const nombre = () => {
+    const L = LENGUAS[R.pick(lenguas)];
+    const n = (R.pick(L.ini) + (R.chance(.6) ? R.pick(L.mid) : '') + R.pick(L.fin)).toLowerCase();
+    // Se descartan vocales dobles o tres vocales seguidas, que suenan forzadas.
+    if (/([aeiouáéíóú])\1|[aeiouáéíóú]{3}/.test(n) || n.length > 9) return '';
+    return n.charAt(0).toUpperCase() + n.slice(1);
+  };
+  const toponimo = () => {
+    const [pre, g] = R.pick(TOPONIMOS.pre);
+    if (R.chance(.45)) return `${pre} ${R.pick(TOPONIMOS.adj)[g === 'm' ? 0 : 1]}`;
+    if (R.chance(.5)) return `${pre} ${R.pick(TOPONIMOS.de)}`;
+    const n = nombre();
+    return n && `${pre} de ${n}`;
+  };
+  const lista = (n, fn) => {
+    const out = new Set();
+    for (let i = 0; i < n * 8 && out.size < n; i++) { const v = fn(); if (v && v.length >= 3) out.add(v); }
+    return [...out];
+  };
+  return {
+    voz: R.pick(VOCES),
+    personas: lista(16, nombre),
+    lugares: lista(10, () => (R.chance(.3) ? nombre() : toponimo())),
+  };
+}
+
+// Pautas de escritura para que el texto suene a una persona y no a un generador.
+function estiloNarrativo(voz) {
+  return `ESTILO (lo más importante: el texto debe parecer escrito por una persona)
+- Voz del narrador en esta campaña: ${voz}.
+- Concreto y físico: objetos, gestos, ruidos y olores precisos. Un buen detalle vale más que tres adjetivos.
+- Frases de longitud variada, alguna muy corta. Párrafos breves separados por saltos de línea; cada intervención de diálogo en su propio párrafo.
+- No describas siempre el olor del lugar; elige el sentido que más aporte en cada escena.
+- Varía cómo empiezas: no abras siempre con el ambiente, el clima o el lugar. A veces empieza con un diálogo, un ruido o un gesto.
+- Los personajes hablan con voz propia (registro, muletillas, frases a medias), en diálogo directo con raya (—).
+- Nada de moralejas, resúmenes ni frases finales solemnes ("es tu única salida", "el destino aguarda"). Termina en algo concreto que pasa o que se ve.
+- Nunca termines preguntando al jugador qué hace.
+- Prohibido: "no solo… sino…", "no por X, sino por Y", enumeraciones de tres adjetivos o tres olores, "un escalofrío recorre", "el aire está cargado", "huele a peligro", "sombras alargadas" o "danzantes", "antorchas parpadeantes", "como una losa", "con mano de hierro", "tapiz", "susurros", "sinfonía", "crisol", "palpable", "intrincado", "testamento de", "en el corazón de", "se hunde en el horizonte", "tiñendo el cielo", "inminente", "ancestral", "te adentras", "horas intempestivas".
+- No uses nombres típicos de generador como Kaelen, Kaelia, Elara, Lyra, Aria, Seraphina, Thorne, Valerius, Eldoria, Zephyr, Aldric, Barnaby, Jareth, Maelen, Sylas, Elowen, Garrick o Vex.
+
+Ejemplo de tono (solo como referencia, no lo copies):
+El mercader no te mira a los ojos. Cuenta las monedas dos veces, se le cae una y no se agacha a recogerla.
+—La torre no abre —dice—. Nunca ha abierto. Y yo que tú no lo preguntaría tan alto.
+Detrás de ti, alguien deja de remover la sopa.`;
+}
+
+// Quita la pregunta final dirigida al jugador si el narrador la añade igualmente.
+function limpiarCierre(texto) {
+  const limpio = String(texto || '').replace(/\s*¿[^¿?]*\b(haces|harás|decides|vas a hacer|hacer ahora|tu próximo paso|cuál es tu)\b[^?]*\?\s*$/i, '').trim();
+  return limpio || texto;
+}
+
+// Utilidades
+const $ = (sel) => document.querySelector(sel);
+const rnd = (n) => Math.floor(Math.random() * n);
+const pick = (arr) => arr[rnd(arr.length)];
+const roll = (sides) => 1 + rnd(sides);
+const mod = (score) => Math.floor((score - 10) / 2);
+const signed = (n) => (n >= 0 ? '+' + n : String(n));
+const profBonus = (level) => 2 + Math.floor((level - 1) / 4);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+const norm = (s) => String(s || '').trim().toLowerCase();
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const RUNES = 'ᚠᚢᚦᚨᚱᚲᚷᚹᚺᚾᛁᛃᛇᛈᛉᛊᛏᛒᛖᛗᛚᛜᛞᛟ';
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+// Conversión mínima de Markdown (negrita, cursiva y párrafos) sobre texto ya escapado.
+function richText(s) {
+  return escapeHtml(s)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*(?!\s)(.+?)\*/g, '$1<em>$2</em>')
+    .split(/\n{2,}|\n/)
+    .filter((p) => p.trim())
+    .map((p) => `<p>${p}</p>`)
+    .join('');
+}
+
+function loadJSON(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+}
+function saveJSON(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+  catch (e) { alert('No se ha podido guardar en el navegador: ' + e.message); return false; }
+}
+
+const getSaves = () => loadJSON(SAVES_KEY, {});
+
+function persist(save) {
+  const saves = getSaves();
+  save.updated = Date.now();
+  if (save.history.length > MAX_HISTORY) save.history.splice(0, save.history.length - MAX_HISTORY);
+  saves[save.id] = save;
+  saveJSON(SAVES_KEY, saves);
+}
+
+let pantalla = 'screen-lobby';
+let vistaMovil = 'historia';   // En tablet y móvil: 'historia' o 'panel' (héroe, mapa o personajes)
+const esCompacto = () => window.matchMedia('(max-width: 1024px)').matches;
+
+function showScreen(id) {
+  pantalla = id;
+  document.querySelectorAll('.screen').forEach((s) => (s.hidden = s.id !== id));
+  window.scrollTo(0, 0);
+  updateNav();
+}
+
+// Marca la sección activa y muestra u oculta las secciones que dependen de una partida abierta.
+function updateNav() {
+  document.body.classList.toggle('sin-partida', !current);
+  $('#screen-game').dataset.vista = vistaMovil;
+  const activa = pantalla === 'screen-lobby' ? 'partidas'
+    : pantalla === 'screen-create' ? 'nuevo'
+    : pantalla === 'screen-game' ? (esCompacto() && vistaMovil === 'historia' ? 'historia' : sideTab) : '';
+  document.querySelectorAll('[data-nav]').forEach((b) => b.classList.toggle('active', b.dataset.nav === activa));
+}
+
+function navigate(destino) {
+  if (destino === 'partidas') return openLobby();
+  if (destino === 'nuevo') return openCreate();
+  if (!current) return;
+  if (destino === 'historia') {
+    vistaMovil = 'historia';
+  } else {
+    sideTab = destino;
+    vistaMovil = 'panel';
+    renderSide();
+  }
+  if (pantalla !== 'screen-game') showScreen('screen-game');
+  else updateNav();
+}
+
+function setNavPlegada(plegada) {
+  document.body.classList.toggle('nav-plegada', plegada);
+  try { localStorage.setItem('cronicas.navPlegada', plegada ? '1' : ''); } catch { /* Preferencia solo de este navegador */ }
+}
+
+// Efectos visuales de la interfaz
+function startEmbers() {
+  if (REDUCED_MOTION) return;
+  const cv = $('#fx-embers');
+  const ctx = cv.getContext('2d');
+  let parts = [];
+  const resize = () => {
+    cv.width = innerWidth; cv.height = innerHeight;
+    parts = Array.from({ length: Math.round(innerWidth / 32) }, () => ({ x: Math.random() * cv.width, y: Math.random() * cv.height, v: .3 + Math.random() * .8, r: .6 + Math.random() * 1.6, p: Math.random() * 6 }));
+  };
+  resize();
+  addEventListener('resize', resize);
+  let last = 0;
+  let running = false;
+  const loop = (t) => {
+    running = true;
+    const dt = Math.min(.05, (t - last) / 1000 || .016); last = t;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    for (const p of parts) {
+      p.y -= 26 * p.v * dt; p.x += Math.sin(t / 900 + p.p) * 10 * dt;
+      if (p.y < -10) { p.y = cv.height + 10; p.x = Math.random() * cv.width; }
+      const a = .25 + .35 * Math.sin(t / 600 + p.p) ** 2;
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 4);
+      g.addColorStop(0, `rgba(255,170,70,${a})`); g.addColorStop(1, 'rgba(255,120,40,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 4, 0, Math.PI * 2); ctx.fill();
+    }
+    if (document.hidden) running = false;
+    else requestAnimationFrame(loop);
+  };
+  requestAnimationFrame(loop);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !running) { running = true; requestAnimationFrame(loop); } });
+}
+
+function toast(text) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = text;
+  document.body.append(el);
+  setTimeout(() => el.remove(), 3100);
+}
+
+function d20SVG() {
+  const pt = (r, deg) => [100 + r * Math.cos(deg * Math.PI / 180), 100 + r * Math.sin(deg * Math.PI / 180)];
+  const hex = [0, 1, 2, 3, 4, 5].map((k) => pt(88, -90 + 60 * k));
+  const tri = [-90, 30, 150].map((d) => pt(52, d));
+  const lines = [];
+  tri.forEach(([x, y], i) => {
+    const a = hex[(i * 2 + 5) % 6], b = hex[i * 2], c = hex[(i * 2 + 1) % 6];
+    [a, b, c].forEach(([hx, hy]) => lines.push(`<line x1="${x}" y1="${y}" x2="${hx}" y2="${hy}"/>`));
+  });
+  return `<svg viewBox="0 0 200 200"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7d98f"/><stop offset=".5" stop-color="#e2b65c"/><stop offset="1" stop-color="#9c7430"/></linearGradient></defs>
+    <polygon points="${hex.map((p) => p.join(',')).join(' ')}" fill="url(#dg)" stroke="#5a3e14" stroke-width="3"/>
+    <g stroke="#7a5520" stroke-width="1.6" opacity=".7">${lines.join('')}</g>
+    <polygon points="${tri.map((p) => p.join(',')).join(' ')}" fill="#f7e2a8" stroke="#7a5520" stroke-width="2"/>
+    <text class="die-num" x="100" y="116" text-anchor="middle">20</text></svg>`;
+}
+
+// Animación del d20. Se puede saltar con un clic.
+function rollDiceAnimation({ d, bonus, total, cd, outcome }) {
+  return new Promise((resolve) => {
+    const ov = $('#dice-overlay');
+    ov.innerHTML = d20SVG() + '<div class="verdict"></div><div class="detail"></div>';
+    ov.hidden = false;
+    const svg = ov.querySelector('svg');
+    const num = ov.querySelector('.die-num');
+    svg.classList.add('spinning');
+    let done = false;
+    const spin = setInterval(() => (num.textContent = roll(20)), 70);
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearInterval(spin); clearTimeout(t1); clearTimeout(t2);
+      ov.hidden = true; ov.innerHTML = '';
+      resolve();
+    };
+    const t1 = setTimeout(() => {
+      clearInterval(spin);
+      num.textContent = d;
+      svg.classList.remove('spinning'); svg.classList.add('landed');
+      const ok = outcome.startsWith('ÉXITO');
+      const v = ov.querySelector('.verdict');
+      v.textContent = outcome;
+      v.style.color = ok ? 'var(--green)' : 'var(--red)';
+      v.style.textShadow = `0 0 20px ${ok ? '#7cbc72' : '#d65a4e'}`;
+      v.classList.add('show');
+      const det = ov.querySelector('.detail');
+      det.textContent = `d20 ${d} ${signed(bonus)} = ${total} · CD ${cd}`;
+      det.classList.add('show');
+    }, REDUCED_MOTION ? 50 : 950);
+    const t2 = setTimeout(finish, REDUCED_MOTION ? 900 : 2400);
+    ov.onclick = finish;
+  });
+}
+
+// Revela la narración palabra a palabra.
+function revealWords(el) {
+  if (REDUCED_MOTION) return;
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  const total = nodes.reduce((n, t) => n + t.textContent.split(/\s+/).filter(Boolean).length, 0);
+  const step = Math.min(40, 2200 / Math.max(1, total));
+  let i = 0;
+  for (const node of nodes) {
+    const frag = document.createDocumentFragment();
+    for (const piece of node.textContent.split(/(\s+)/)) {
+      if (!piece) continue;
+      if (/^\s+$/.test(piece)) { frag.append(piece); continue; }
+      const span = document.createElement('span');
+      span.className = 'w';
+      span.style.setProperty('--d', `${Math.round(i++ * step)}ms`);
+      span.textContent = piece;
+      frag.append(span);
+    }
+    node.replaceWith(frag);
+  }
+}
+
+// Cliente del narrador (proxy de Apps Script)
+function extractJSON(text) {
+  try { return JSON.parse(text); } catch { /* Se intenta una extracción tolerante */ }
+  const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
+  const start = cleaned.indexOf('{');
+  const end = cleaned.lastIndexOf('}');
+  if (start >= 0 && end > start) return JSON.parse(cleaned.slice(start, end + 1));
+  throw new Error('La respuesta del narrador no es válida. Se puede reintentar.');
+}
+
+// Se usa text/plain para evitar la petición previa CORS, que Apps Script no admite.
+async function callGemini({ system, contents, schema }) {
+  if (!GEMINI_PROXY_URL) {
+    console.warn('[narrador] GEMINI_PROXY_URL vacía en index.html');
+    throw new Error('El juego no está configurado correctamente.');
+  }
+  let res;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+  try {
+    res = await fetch(GEMINI_PROXY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ system, contents, schema }),
+      signal: ctrl.signal,
+    });
+  } catch (e) {
+    throw new Error(e.name === 'AbortError' ? 'El narrador tarda demasiado en responder. Se puede reintentar.' : 'No se ha podido conectar con el servidor del juego.');
+  } finally {
+    clearTimeout(timer);
+  }
+  const data = await res.json().catch(() => ({}));
+  // Apps Script responde siempre con HTTP 200: los fallos llegan en el campo "error".
+  // El detalle técnico queda en la consola; el jugador recibe un mensaje neutro.
+  if (!res.ok || data.error) {
+    console.warn('[narrador]', data?.error || `HTTP ${res.status}`);
+    throw new Error('El narrador no está disponible en este momento. Se puede reintentar en unos segundos.');
+  }
+  if (!data.text || !data.text.trim()) throw new Error('El narrador no ha respondido. Se puede reintentar.');
+  return extractJSON(data.text);
+}
+
+// Esquemas de respuesta estructurada
+const ESCENA_SCHEMA = {
+  type: 'OBJECT',
+  description: 'Lugar donde está el personaje ahora mismo',
+  properties: {
+    bioma: { type: 'STRING', enum: BIOMAS },
+    momento: { type: 'STRING', enum: MOMENTOS },
+    clima: { type: 'STRING', enum: CLIMAS },
+  },
+  required: ['bioma', 'momento', 'clima'],
+};
+const PNJ_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    nombre: { type: 'STRING' },
+    rol: { type: 'STRING', description: 'Papel en la historia, breve' },
+    tipo: { type: 'STRING', enum: TIPOS_CRIATURA },
+    raza: { type: 'STRING', description: 'Raza si es humanoide (humano, elfo, enano, mediano, gnomo, semiorco, tiflin, dracónido u otra)' },
+    arquetipo: { type: 'STRING', enum: Object.keys(ARQUETIPOS), description: 'Aspecto visual más parecido' },
+    hostil: { type: 'BOOLEAN' },
+    sexo: { type: 'STRING', enum: ['hombre', 'mujer', 'ninguno'], description: '"ninguno" para criaturas sin sexo definido' },
+  },
+  required: ['nombre', 'rol', 'tipo', 'arquetipo', 'hostil', 'sexo'],
+};
+
+const OPCIONES_SCHEMA = {
+  type: 'ARRAY',
+  items: { type: 'STRING' },
+  description: 'Tres acciones en primera persona, como las diría un jugador en la mesa, de 2 a 8 palabras y de longitud distinta (p. ej. "Le enseño la llave"); vacío solo si se pide una tirada',
+};
+
+const CAMPAIGN_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    titulo: { type: 'STRING', description: 'Título corto y concreto (2-5 palabras), como el de una novela; sin fórmulas como "Las Sombras de", "El Eco de", "Las Arenas de", "Crónicas de" o "El Despertar de"' },
+    epiteto: { type: 'STRING', description: 'Sobrenombre único del héroe, acorde a su sexo, trasfondo y personalidad (p. ej. "la Que Escucha a los Árboles")' },
+    trasfondo: { type: 'STRING', description: 'Trasfondo del héroe en 2-4 frases: el que escribió el jugador, enriquecido sin contradecirlo; si no escribió nada, uno coherente con su raza, clase, sexo y alineamiento' },
+    ganchos_personales: {
+      type: 'ARRAY',
+      description: '3 o 4 hilos que atan la campaña al héroe',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          origen: { type: 'STRING', description: 'Elemento concreto del trasfondo o de la personalidad del héroe' },
+          en_la_trama: { type: 'STRING', description: 'Cómo aparecerá en la campaña: una persona, una deuda, un lugar, un objeto o un dilema' },
+        },
+        required: ['origen', 'en_la_trama'],
+      },
+    },
+    mundo: { type: 'STRING', description: 'Descripción del mundo en 3-5 frases' },
+    region_inicial: { type: 'STRING', description: 'Nombre corto del lugar donde empieza la aventura' },
+    escena_inicial: ESCENA_SCHEMA,
+    premisa: { type: 'STRING', description: 'Conflicto central en 2-3 frases' },
+    antagonista: {
+      type: 'OBJECT',
+      properties: { nombre: { type: 'STRING' }, descripcion: { type: 'STRING' }, motivacion: { type: 'STRING' } },
+      required: ['nombre', 'descripcion', 'motivacion'],
+    },
+    secreto: { type: 'STRING', description: 'Giro oculto que el jugador desconoce' },
+    objetivo_principal: { type: 'STRING', description: 'Misión principal tal como la conoce el personaje' },
+    actos: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Esquema de 4 actos, una frase cada uno' },
+    pnj: { type: 'ARRAY', description: '3-4 personajes no jugadores importantes', items: PNJ_SCHEMA },
+    narracion_inicial: { type: 'STRING', description: 'Escena de apertura en segunda persona, 120-200 palabras, que empieza en plena acción o con un diálogo' },
+    opciones: OPCIONES_SCHEMA,
+  },
+  required: ['titulo', 'epiteto', 'trasfondo', 'ganchos_personales', 'mundo', 'region_inicial', 'escena_inicial', 'premisa', 'antagonista', 'secreto', 'objetivo_principal', 'actos', 'pnj', 'narracion_inicial', 'opciones'],
+};
+
+const TURN_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    narracion: { type: 'STRING', description: 'Narración del turno en segunda persona, entre 40 y 200 palabras según el momento' },
+    tirada: {
+      type: 'OBJECT',
+      properties: {
+        necesaria: { type: 'BOOLEAN' },
+        atributo: { type: 'STRING', enum: STATS },
+        cd: { type: 'INTEGER', description: 'Clase de dificultad entre 5 y 25' },
+        motivo: { type: 'STRING', description: 'Qué se intenta, p. ej. "Trepar el muro"' },
+      },
+      required: ['necesaria'],
+    },
+    cambios: {
+      type: 'OBJECT',
+      properties: {
+        pv: { type: 'INTEGER', description: 'Variación de puntos de vida (negativo = daño)' },
+        oro: { type: 'INTEGER', description: 'Variación de oro' },
+        xp: { type: 'INTEGER', description: 'Puntos de experiencia ganados' },
+        objetos_ganados: { type: 'ARRAY', items: { type: 'STRING' } },
+        objetos_perdidos: { type: 'ARRAY', items: { type: 'STRING' } },
+        ubicacion: { type: 'STRING', description: 'Nombre corto del lugar actual, p. ej. "Taberna del Ciervo Blanco"' },
+      },
+    },
+    escena: ESCENA_SCHEMA,
+    pnj_presentes: { type: 'ARRAY', description: 'Personajes o criaturas visibles ahora mismo (máximo 4)', items: PNJ_SCHEMA },
+    mision: { type: 'STRING', description: 'Novedad de misiones de este turno, o cadena vacía si no la hay' },
+    opciones: OPCIONES_SCHEMA,
+    nota_cronica: { type: 'STRING', description: 'Hecho clave del turno en una frase para la memoria a largo plazo' },
+    fin_partida: { type: 'BOOLEAN', description: 'true solo si el personaje muere o la campaña concluye' },
+  },
+  required: ['narracion', 'tirada', 'cambios', 'escena', 'pnj_presentes', 'opciones', 'nota_cronica', 'fin_partida'],
+};
+
+// Instrucciones del Dungeon Master
+const DM_RULES = `Eres el Dungeon Master de una partida de rol de fantasía inspirada en Dungeons & Dragons 5e, para un único jugador.
+Narra siempre en español y en segunda persona. Extensión variable: de 40 a 200 palabras según lo que pida el momento.
+
+REGLAS DE NARRACIÓN
+- Esta historia es exclusiva de este jugador: respeta la biblia de campaña, el trasfondo del personaje y la crónica. Mantén la coherencia de nombres, lugares, PNJ y hechos ya establecidos.
+- Avanza hacia los actos previstos, pero adapta la trama a las decisiones del jugador; sus elecciones deben tener consecuencias reales y duraderas.
+- Nunca decidas acciones, palabras ni sentimientos del personaje del jugador.
+- Respeta el sexo del personaje en toda la concordancia gramatical ("estás cansada" o "estás cansado") y en el sobrenombre.
+- Si el jugador intenta algo imposible o incoherente con el mundo, explica qué ocurre de forma verosímil.
+- Mantén el secreto de la campaña oculto hasta que la historia lo revele de manera natural.
+
+REGLAS DE TIRADAS
+- Cuando el resultado de una acción sea incierto y relevante, pide una tirada: tirada.necesaria=true, con el atributo adecuado, una CD (5 fácil, 10 normal, 15 difícil, 20 muy difícil, 25 casi imposible) y un motivo breve. En ese caso narra solo la situación previa, sin revelar el resultado, y deja "opciones" vacío.
+- Las tiradas las realiza el juego. Nunca inventes resultados de dados.
+- Al recibir el resultado de una tirada, narra su consecuencia (un crítico es un éxito o fracaso espectacular) y no pidas otra tirada en esa misma respuesta salvo que sea imprescindible.
+
+REGLAS DE ESTADO
+- En "cambios" refleja solo variaciones reales de este turno: pv negativo para daño y positivo para curación; oro; xp (10-50 por logros menores, 100-300 por hitos importantes); objetos concretos ganados o perdidos; ubicación actual.
+- Daño enemigo acorde al nivel del personaje (aprox. 1d6 a 2d8 en niveles 1-3). Si los PV llegan a 0, el personaje cae; decide con justicia si sobrevive. Usa fin_partida=true solo si muere o la campaña concluye.
+- Usar una poción de curación consume el objeto y cura 2d4+2 PV.
+
+EL HÉROE COMO CENTRO
+- El trasfondo, la personalidad y los ganchos personales de la biblia guían la historia: hazlos aparecer de forma natural y frecuente (un rostro del pasado, una deuda que se cobra, un rumor, un objeto, una carta) y que pesen en las decisiones.
+- Los PNJ reaccionan al carácter, la reputación y el pasado del héroe. Plantea dilemas que pongan a prueba sus miedos, lealtades y defectos.
+- Nunca contradigas el trasfondo ni la personalidad; si el jugador actúa en contra de ellos, el mundo lo nota.
+
+ESCENA Y PERSONAJES
+- En "escena" describe siempre el lugar donde está el personaje ahora: el bioma más parecido ("interior" para tabernas, casas o salas; "cueva" o "mazmorra" para subterráneos), el momento del día y el clima. El tiempo avanza de forma razonable entre turnos.
+- En "pnj_presentes" incluye solo los personajes o criaturas visibles en la escena ahora mismo (máximo 4). Si ya aparecieron antes, usa exactamente el mismo nombre. Para criaturas sin nombre usa uno descriptivo ("Lobo gris"). Indica su tipo, raza si es humanoide, el arquetipo visual más parecido y si es hostil.
+- En "ubicacion" usa siempre un nombre corto y estable para cada lugar.
+
+FORMATO
+- Si no hay tirada pendiente, ofrece siempre 3 opciones distintas entre sí, en primera persona y cortas (el jugador puede hacer cualquier otra cosa).
+- "nota_cronica": una frase con el hecho clave del turno, con nombres propios.
+- "mision": solo si se obtiene, avanza o completa una misión; si no, cadena vacía.`;
+
+// Mundo: escena, lugares y personajes conocidos
+function sanitizeEscena(e, prev = { bioma: 'llanura', momento: 'dia', clima: 'despejado' }) {
+  e = e || {};
+  return {
+    bioma: BIOMAS.includes(e.bioma) ? e.bioma : prev.bioma,
+    momento: MOMENTOS.includes(e.momento) ? e.momento : prev.momento,
+    clima: CLIMAS.includes(e.clima) ? e.clima : prev.clima,
+  };
+}
+
+function upsertNpc(save, p) {
+  if (!p || !String(p.nombre || '').trim()) return null;
+  const key = norm(p.nombre);
+  const prev = save.pnj[key];
+  if (!prev) {
+    save.pnj[key] = {
+      nombre: String(p.nombre).trim(),
+      rol: p.rol || '',
+      tipo: TIPOS_CRIATURA.includes(p.tipo) ? p.tipo : 'humanoide',
+      raza: p.raza || '',
+      arquetipo: ARQUETIPOS[p.arquetipo] ? p.arquetipo : 'plebeyo',
+      hostil: !!p.hostil,
+      sexo: p.sexo === 'hombre' || p.sexo === 'mujer' ? p.sexo : '',
+    };
+  } else {
+    if (p.rol) prev.rol = p.rol;
+    prev.hostil = !!p.hostil;
+  }
+  return key;
+}
+
+function addPlace(save, nombre, bioma) {
+  nombre = String(nombre || '').trim();
+  if (!nombre || save.lugares.some((l) => norm(l.nombre) === norm(nombre))) return;
+  const prev = save.lugares[save.lugares.length - 1];
+  const pos = placeLocation(save.id, nombre, bioma, prev);
+  save.lugares.push({ nombre, bioma, x: pos.x, y: pos.y });
+}
+
+// Completa los datos visuales de partidas creadas con versiones anteriores.
+function normalizeSave(save) {
+  save.character.aspecto = save.character.aspecto || save.id;
+  save.escena = sanitizeEscena(save.escena);
+  save.presentes = save.presentes || [];
+  if (!save.pnj) {
+    save.pnj = {};
+    (save.campaign.pnj || []).forEach((p) => upsertNpc(save, p));
+  }
+  if (!save.lugares) {
+    save.lugares = [];
+    addPlace(save, save.campaign.region_inicial, save.escena.bioma);
+    addPlace(save, save.state.ubicacion, save.escena.bioma);
+  }
+  return save;
+}
+
+const heroPortrait = (save) => portraitSVG({ seed: save.character.aspecto || save.id, raza: save.character.raza, clase: save.character.clase, sexo: save.character.sexo, look: save.character.apariencia });
+
+function npcPortrait(save, n, extra = '') {
+  const svg = portraitSVG({
+    seed: save.id + '|' + n.nombre,
+    raza: raceFromText(n.raza),
+    sexo: n.sexo || undefined,
+    clase: ARQUETIPOS[n.arquetipo] || 'Plebeyo',
+    tipo: n.tipo,
+    hostil: n.hostil,
+  });
+  return `<div class="portrait ${n.hostil ? 'hostil' : ''} ${extra}" title="${escapeHtml(n.nombre)}">${svg}</div>`;
+}
+
+// Creación de personaje
+let draftScores = null;
+let draftLook = uid();
+let draftOverrides = {};    // Rasgos fijados por el jugador en la personalización
+
+function roll4d6() {
+  const dice = [roll(6), roll(6), roll(6), roll(6)].sort((a, b) => a - b);
+  return dice[1] + dice[2] + dice[3];
+}
+
+// Asigna las tiradas priorizando los atributos clave de la clase y la Constitución.
+function rollScores(className) {
+  const values = Array.from({ length: 6 }, roll4d6).sort((a, b) => b - a);
+  const priority = [...CLASSES[className].prof];
+  if (!priority.includes('CON')) priority.push('CON');
+  const rest = STATS.filter((s) => !priority.includes(s)).sort(() => Math.random() - 0.5);
+  const order = [...priority, ...rest];
+  const scores = {};
+  order.forEach((stat, i) => (scores[stat] = values[i]));
+  return scores;
+}
+
+function finalScores(base, race) {
+  const bonus = RACES[race] || {};
+  const out = {};
+  STATS.forEach((s) => (out[s] = base[s] + (bonus[s] || 0)));
+  return out;
+}
+
+function renderDraft() {
+  const scores = finalScores(draftScores, $('#c-race').value);
+  $('#c-stats').innerHTML = STATS.map((s, i) => `
+    <div class="stat-box" style="animation-delay:${i * 60}ms"><div class="k">${s}</div><div class="v">${scores[s]}</div><div class="m">${signed(mod(scores[s]))}</div></div>`).join('');
+  const raza = $('#c-race').value, clase = $('#c-class').value, sexo = $('#c-sex').value;
+  $('#c-portrait').innerHTML = portraitSVG({ seed: draftLook, raza, clase, sexo, look: draftOverrides });
+  const look = resolveLook(draftLook, raza, clase, draftOverrides, sexo);
+  document.querySelectorAll('#c-race option, #c-class option').forEach((o) => (o.textContent = genero(o.value, sexo)));
+  document.querySelectorAll('[data-look]').forEach((el) => {
+    el.value = look[el.dataset.look];
+    el.disabled = raza === 'Dracónido' && (el.dataset.look === 'peinado' || el.dataset.look === 'barba');
+  });
+}
+
+function fillLookControls() {
+  const lists = { peinado: PEINADOS, barba: BARBAS, marca: MARCAS, accesorio: ACCESORIOS, tocado: TOCADOS };
+  for (const [key, list] of Object.entries(lists)) {
+    $(`select[data-look="${key}"]`).innerHTML = Object.entries(list).map(([v, t]) => `<option value="${v}">${t}</option>`).join('');
+  }
+}
+
+function openCreate() {
+  $('#c-race').innerHTML = Object.keys(RACES).map((r) => `<option value="${r}">${r}</option>`).join('');
+  $('#c-class').innerHTML = Object.keys(CLASSES).map((c) => `<option value="${c}">${c}</option>`).join('');
+  $('#c-name').value = '';
+  $('#c-backstory').value = '';
+  $('#c-traits').value = '';
+  $('#create-error').hidden = true;
+  draftLook = uid();
+  draftOverrides = {};
+  fillLookControls();
+  draftScores = rollScores($('#c-class').value);
+  renderDraft();
+  showScreen('screen-create');
+  $('#c-name').focus();
+}
+
+function buildCharacter() {
+  const name = $('#c-name').value.trim();
+  if (!name) throw new Error('El personaje necesita un nombre.');
+  const race = $('#c-race').value;
+  const cls = $('#c-class').value;
+  const scores = finalScores(draftScores, race);
+  const maxHp = Math.max(1, CLASSES[cls].dado + mod(scores.CON));
+  return {
+    character: {
+      nombre: name,
+      raza: race,
+      clase: cls,
+      sexo: $('#c-sex').value,
+      alineamiento: $('#c-align').value,
+      trasfondo: $('#c-backstory').value.trim(),
+      rasgos: $('#c-traits').value.trim(),
+      atributos: scores,
+      aspecto: draftLook,
+      apariencia: { ...draftOverrides },
+    },
+    state: {
+      nivel: 1,
+      xp: 0,
+      pv: maxHp,
+      pvMax: maxHp,
+      oro: 10 + roll(20),
+      inventario: [...CLASSES[cls].equipo],
+      ubicacion: '',
+    },
+    tonePreference: $('#c-tone').value,
+  };
+}
+
+let creating = false;  // Evita crear dos campañas con un doble clic
+
+async function startAdventure() {
+  if (creating) return;
+  let built;
+  try { built = buildCharacter(); } catch (e) { return showCreateError(e.message); }
+  creating = true;
+
+  showScreen('screen-loading');
+  const seeds = {
+    tema: pick(SEED_THEMES),
+    giro: pick(SEED_TWISTS),
+    ambientacion: pick(SEED_ATMOSPHERES),
+    tono: built.tonePreference || 'a elección del diseñador',
+    semilla: rnd(1e9),
+  };
+
+  try {
+    const { aspecto, apariencia, ...publicCharacter } = built.character;
+    const sabor = campaignFlavor(seeds.semilla);
+    const campaign = await callGemini({
+      system: `Eres un autor de campañas de rol de fantasía con oficio. Escribes en español campañas originales y coherentes para un único jugador. Evita clichés (señores oscuros sin motivo, "el elegido", profecías, artefactos antiguos que despiertan sin más): conflictos con motivaciones creíbles, intereses materiales y vínculos personales con el héroe.\n\n${estiloNarrativo(sabor.voz)}`,
+      contents: [{
+        role: 'user',
+        parts: [{ text:
+`Diseña una campaña nueva para este personaje.
+
+PERSONAJE:
+${JSON.stringify(publicCharacter, null, 2)}
+
+SEMILLAS DE INSPIRACIÓN (úsalas como punto de partida, no literalmente):
+- Tema: ${seeds.tema}
+- Giro posible: ${seeds.giro}
+- Ambientación: ${seeds.ambientacion}
+- Tono: ${seeds.tono}
+- Semilla de variación: ${seeds.semilla}
+
+Requisitos:
+- Lee con atención el trasfondo y la personalidad del personaje: la campaña debe nacer de ellos. Cada gancho personal parte de un detalle concreto de lo que escribió el jugador (personas, deudas, miedos, lealtades, defectos, objetos) y lo convierte en algo que ocurrirá en la trama.
+- Si el trasfondo o la personalidad están vacíos, invéntalos de forma coherente y úsalos igual.
+- La escena inicial ya debe tocar al menos uno de esos ganchos.
+- Nombres: usa preferentemente estos o inventa otros del mismo estilo.
+  Personas: ${sabor.personas.join(', ')}
+  Lugares: ${sabor.lugares.join(', ')}
+- La escena inicial sitúa al personaje en la región inicial y empieza en plena acción o con un diálogo, no describiendo el clima.` }],
+      }],
+      schema: CAMPAIGN_SCHEMA,
+    });
+
+    const save = {
+      id: uid(),
+      created: Date.now(),
+      updated: Date.now(),
+      character: { ...built.character, epiteto: campaign.epiteto || '', trasfondo: campaign.trasfondo || built.character.trasfondo },
+      state: { ...built.state, ubicacion: campaign.region_inicial || '' },
+      campaign,
+      seeds,
+      escena: sanitizeEscena(campaign.escena_inicial),
+      lugares: [],
+      pnj: {},
+      presentes: [],
+      quests: [{ texto: campaign.objetivo_principal, principal: true }],
+      chronicle: [`Inicio de la campaña "${campaign.titulo}" en ${campaign.region_inicial}.`],
+      history: [{ t: 'dm', text: limpiarCierre(campaign.narracion_inicial) }],
+      options: campaign.opciones || [],
+      pending: null,
+      over: false,
+      turn: 0,
+    };
+    addPlace(save, campaign.region_inicial, save.escena.bioma);
+    (campaign.pnj || []).forEach((p) => upsertNpc(save, p));
+    persist(save);
+    animateFrom = 0;
+    openGame(save.id);
+  } catch (e) {
+    showScreen('screen-create');
+    showCreateError('No se ha podido crear la campaña: ' + e.message);
+  } finally {
+    creating = false;
+  }
+}
+
+function showCreateError(msg) {
+  const el = $('#create-error');
+  el.textContent = msg;
+  el.hidden = false;
+}
+
+// Motor de partida
+let current = null;            // Partida activa
+let busy = false;              // Petición en curso
+let rolling = false;           // Animación del dado en curso
+let lastError = null;          // Último error, con opción de reintento
+let animateFrom = Infinity;    // Índice de la primera entrada del registro que se anima
+let sideTab = 'heroe';
+let pendingFx = null;
+let scene = null;
+
+function buildSystemPrompt(save) {
+  const c = save.character;
+  const s = save.state;
+  const cls = CLASSES[c.clase];
+  const statLine = STATS.map((k) => `${k} ${c.atributos[k]} (${signed(mod(c.atributos[k]))})`).join(', ');
+  const { narracion_inicial, opciones, escena_inicial, ...bible } = save.campaign;
+  const chronicle = save.chronicle.slice(-CHRONICLE_WINDOW).map((n, i) => `${i + 1}. ${n}`).join('\n');
+  const quests = save.quests.map((q) => `- ${q.principal ? '[PRINCIPAL] ' : ''}${q.texto}`).join('\n');
+  const known = Object.values(save.pnj).map((n) => `- ${n.nombre}: ${n.rol}${n.hostil ? ' (hostil)' : ''}`).join('\n');
+
+  const sabor = campaignFlavor(save.seeds?.semilla ?? save.id);
+  const usados = new Set([...Object.keys(save.pnj), ...save.lugares.map((l) => norm(l.nombre))]);
+  const libres = (arr) => arr.filter((n) => !usados.has(norm(n))).join(', ');
+
+  return `${DM_RULES}
+
+${estiloNarrativo(sabor.voz)}
+
+NOMBRES DISPONIBLES para personajes y lugares nuevos (o inventa otros del mismo estilo):
+Personas: ${libres(sabor.personas)}
+Lugares: ${libres(sabor.lugares)}
+
+=== BIBLIA DE CAMPAÑA (confidencial, solo para el DM) ===
+${JSON.stringify(bible, null, 2)}
+
+=== PERSONAJE DEL JUGADOR ===
+${c.nombre}${c.epiteto ? ', ' + c.epiteto : ''}, ${genero(c.raza, c.sexo)} ${genero(c.clase, c.sexo)} de nivel ${s.nivel}. Alineamiento: ${c.alineamiento}.
+Atributos: ${statLine}. Competencia en tiradas de ${cls.prof.join(' y ')} (+${profBonus(s.nivel)}).
+Trasfondo: ${c.trasfondo || 'no especificado'}
+Personalidad y rasgos: ${c.rasgos || 'no especificados'}
+Sexo: ${c.sexo || 'no especificado'}
+
+=== ESTADO ACTUAL ===
+PV: ${s.pv}/${s.pvMax} · Oro: ${s.oro} · PX: ${s.xp}
+Ubicación: ${s.ubicacion || 'desconocida'} (${save.escena.bioma}, ${save.escena.momento}, ${save.escena.clima})
+Inventario: ${s.inventario.join(', ') || 'vacío'}
+Misiones:
+${quests || '- ninguna'}
+
+=== PERSONAJES CONOCIDOS ===
+${known || '- ninguno'}
+
+=== CRÓNICA (hechos ya ocurridos, en orden) ===
+${chronicle}`;
+}
+
+// Convierte el historial en turnos de conversación, fusionando roles consecutivos.
+function buildContents(save) {
+  const recent = save.history.filter((h) => h.t !== 'sys').slice(-HISTORY_WINDOW);
+  const contents = [];
+  for (const h of recent) {
+    const role = h.t === 'dm' ? 'model' : 'user';
+    const text = h.t === 'player' ? `Acción del jugador: ${h.text}`
+               : h.t === 'roll' ? `Resultado de la tirada (realizada por el juego): ${h.text}`
+               : h.text;
+    const last = contents[contents.length - 1];
+    if (last && last.role === role) last.parts[0].text += '\n\n' + text;
+    else contents.push({ role, parts: [{ text }] });
+  }
+  if (!contents.length || contents[0].role !== 'user') {
+    contents.unshift({ role: 'user', parts: [{ text: 'Comienza la partida.' }] });
+  }
+  return contents;
+}
+
+async function runTurn() {
+  if (busy || !current) return;
+  busy = true;
+  lastError = null;
+  renderControls();
+  try {
+    const result = await callGemini({ system: buildSystemPrompt(current), contents: buildContents(current), schema: TURN_SCHEMA });
+    applyTurn(result);
+  } catch (e) {
+    lastError = e.message;
+  } finally {
+    busy = false;
+    renderGame();
+  }
+}
+
+function applyTurn(r) {
+  const save = current;
+  save.turn++;
+  animateFrom = save.history.length;
+  save.history.push({ t: 'dm', text: limpiarCierre(r.narracion) || '…' });
+  save.escena = sanitizeEscena(r.escena, save.escena);
+  applyChanges(save, r.cambios || {});
+  if (Array.isArray(r.pnj_presentes)) {
+    save.presentes = r.pnj_presentes.slice(0, MAX_PRESENTES).map((p) => upsertNpc(save, p)).filter(Boolean);
+  }
+
+  if (r.mision && r.mision.trim()) save.quests.push({ texto: r.mision.trim(), principal: false });
+  if (r.nota_cronica && r.nota_cronica.trim()) save.chronicle.push(r.nota_cronica.trim());
+
+  const t = r.tirada || {};
+  if (t.necesaria && STATS.includes(t.atributo)) {
+    save.pending = {
+      atributo: t.atributo,
+      cd: Math.min(30, Math.max(5, Number(t.cd) || 10)),
+      motivo: t.motivo || 'Prueba de ' + STAT_NAMES[t.atributo],
+    };
+    save.options = [];
+  } else {
+    save.pending = null;
+    save.options = Array.isArray(r.opciones) ? r.opciones.slice(0, 4) : [];
+  }
+
+  if (r.fin_partida) {
+    save.over = true;
+    save.pending = null;
+    save.options = [];
+    save.history.push({ t: 'sys', text: save.state.pv <= 0 ? '☠ El personaje ha caído. Fin de la partida.' : '✦ La campaña ha concluido.' });
+  }
+  persist(save);
+}
+
+function applyChanges(save, ch) {
+  const s = save.state;
+  const notes = [];
+  pendingFx = { pv: 0, niveles: 0 };
+
+  if (Number.isFinite(ch.pv) && ch.pv !== 0) {
+    s.pv = Math.max(0, Math.min(s.pvMax, s.pv + ch.pv));
+    pendingFx.pv = ch.pv;
+    notes.push(ch.pv > 0 ? `+${ch.pv} PV` : `${ch.pv} PV`);
+  }
+  if (Number.isFinite(ch.oro) && ch.oro !== 0) {
+    s.oro = Math.max(0, s.oro + ch.oro);
+    notes.push(`${signed(ch.oro)} oro`);
+  }
+  for (const item of ch.objetos_ganados || []) {
+    if (item && item.trim()) { s.inventario.push(item.trim()); notes.push(`+ ${item.trim()}`); }
+  }
+  for (const item of ch.objetos_perdidos || []) {
+    // Coincidencia exacta primero; después, coincidencia parcial tolerante.
+    const name = norm(item);
+    const idx = s.inventario.findIndex((i) => norm(i) === name);
+    const fuzzy = idx >= 0 ? idx : s.inventario.findIndex((i) => norm(i).includes(name) || name.includes(norm(i)));
+    if (fuzzy >= 0) { notes.push(`− ${s.inventario[fuzzy]}`); s.inventario.splice(fuzzy, 1); }
+  }
+  if (ch.ubicacion && ch.ubicacion.trim()) {
+    s.ubicacion = ch.ubicacion.trim();
+    addPlace(save, s.ubicacion, save.escena.bioma);
+  }
+  const gainedXp = Number.isFinite(ch.xp) && ch.xp > 0;
+  if (gainedXp) {
+    s.xp += ch.xp;
+    notes.push(`+${ch.xp} PX`);
+  }
+  if (notes.length) save.history.push({ t: 'sys', text: notes.join(' · ') });
+  if (gainedXp) pendingFx.niveles = checkLevelUp(save);
+}
+
+function checkLevelUp(save) {
+  const s = save.state;
+  const c = save.character;
+  let gained = 0;
+  while (s.nivel < MAX_LEVEL && s.xp >= XP_LEVELS[s.nivel]) {
+    s.nivel++;
+    gained++;
+    const gain = Math.max(1, Math.floor(CLASSES[c.clase].dado / 2) + 1 + mod(c.atributos.CON));
+    s.pvMax += gain;
+    s.pv += gain;
+    save.history.push({ t: 'sys', text: `⬆ ¡Nivel ${s.nivel}! PV máximos +${gain}.` });
+    save.chronicle.push(`${c.nombre} alcanza el nivel ${s.nivel}.`);
+  }
+  return gained;
+}
+
+function sendAction(text) {
+  text = String(text || '').trim();
+  if (!text || busy || !current || current.pending || current.over) return;
+  current.history.push({ t: 'player', text });
+  current.options = [];
+  persist(current);
+  renderGame();
+  runTurn();
+}
+
+async function doRoll() {
+  const save = current;
+  const p = save.pending;
+  if (!p || busy || rolling) return;
+  rolling = true;
+  const score = save.character.atributos[p.atributo];
+  const proficient = CLASSES[save.character.clase].prof.includes(p.atributo);
+  const bonus = mod(score) + (proficient ? profBonus(save.state.nivel) : 0);
+  const d = roll(20);
+  const total = d + bonus;
+  let outcome;
+  if (d === 20) outcome = 'ÉXITO CRÍTICO';
+  else if (d === 1) outcome = 'FALLO CRÍTICO';
+  else outcome = total >= p.cd ? 'ÉXITO' : 'FALLO';
+
+  await rollDiceAnimation({ d, bonus, total, cd: p.cd, outcome });
+  rolling = false;
+  const text = `${p.motivo} — ${STAT_NAMES[p.atributo]}: d20 = ${d} ${signed(bonus)} = ${total} contra CD ${p.cd} → ${outcome}`;
+  save.history.push({ t: 'roll', text, ok: outcome.startsWith('ÉXITO') });
+  save.pending = null;
+  persist(save);
+  renderGame();
+  runTurn();
+}
+
+// Renderizado de la partida
+function openGame(id) {
+  const save = getSaves()[id];
+  if (!save) return;
+  current = normalizeSave(save);
+  lastError = null;
+  sideTab = 'heroe';
+  vistaMovil = 'historia';
+  showScreen('screen-game');
+  renderGame();
+  // Si la última entrada es del jugador sin respuesta (p. ej. tras cerrar la pestaña), se reanuda.
+  const lastReal = [...save.history].reverse().find((h) => h.t !== 'sys');
+  if (lastReal && lastReal.t !== 'dm' && !save.over) runTurn();
+}
+
+function renderGame() {
+  if (!current) return;
+  $('#g-title').textContent = current.campaign.titulo;
+  renderScene();
+  renderLog();
+  renderSide();
+  renderControls();
+  applyFx();
+}
+
+function renderScene() {
+  const e = current.escena;
+  scene.set(e, current.id + '|' + norm(current.state.ubicacion));
+  $('#scene-place').textContent = current.state.ubicacion || 'Lugar desconocido';
+  $('#scene-when').textContent = [MOMENTO_LABEL[e.momento], CLIMA_LABEL[e.clima]].join(' · ');
+  $('#scene-npcs').innerHTML = current.presentes
+    .map((k) => current.pnj[k] && `<div data-npc="${escapeHtml(k)}">${npcPortrait(current, current.pnj[k], 'round')}</div>`)
+    .filter(Boolean).join('');
+}
+
+function renderLog() {
+  const log = $('#log');
+  log.innerHTML = current.history.map((h, i) => {
+    if (h.t === 'dm') return `<div class="entry dm${i >= animateFrom ? ' new' : ''}">${richText(h.text)}</div>`;
+    if (h.t === 'player') return `<div class="entry player"><span>${escapeHtml(h.text)}</span></div>`;
+    if (h.t === 'roll') return `<div class="entry roll"><span>🎲 ${escapeHtml(h.text).replace(/→ (.+)$/, `→ <b class="${h.ok ? 'ok' : 'ko'}">$1</b>`)}</span></div>`;
+    return `<div class="entry sys">${escapeHtml(h.text)}</div>`;
+  }).join('');
+  log.querySelectorAll('.entry.dm.new').forEach(revealWords);
+  animateFrom = Infinity;
+  log.scrollTop = log.scrollHeight;
+}
+
+function renderControls() {
+  const el = $('#controls');
+  const save = current;
+  if (!save) return;
+  let html = '';
+  if (lastError) {
+    html += `<div class="error">${escapeHtml(lastError)} <button class="small" id="btn-retry" style="margin-left:8px">Reintentar</button></div>`;
+  }
+  if (busy) {
+    const runes = [...RUNES].slice(0, 6).map((r, i) => `<span style="animation-delay:${i * .2}s">${r}</span>`).join('');
+    html += `<div class="thinking"><span class="runes">${runes}</span> El narrador piensa…</div>`;
+  }
+  if (save.over) {
+    html += `<div class="row" style="justify-content:center"><button class="primary" id="btn-over-back">Volver al inicio</button></div>`;
+  } else if (save.pending) {
+    const p = save.pending;
+    const proficient = CLASSES[save.character.clase].prof.includes(p.atributo);
+    const bonus = mod(save.character.atributos[p.atributo]) + (proficient ? profBonus(save.state.nivel) : 0);
+    html += `<button class="primary roll-btn" id="btn-roll" ${busy ? 'disabled' : ''}>🎲 Tirar d20 ${signed(bonus)} — ${escapeHtml(p.motivo)} (${p.atributo}, CD ${p.cd})</button>`;
+  } else {
+    if (save.options.length && !busy) {
+      html += `<div class="options">${save.options.map((o, i) => `<button data-opt="${i}" style="animation-delay:${i * 80}ms">${escapeHtml(o)}</button>`).join('')}</div>`;
+    }
+    html += `<div class="input-row">
+      <textarea id="action-input" placeholder="¿Qué haces? Describe tu acción o lo que dices…" ${busy ? 'disabled' : ''}></textarea>
+      <button class="primary" id="btn-send" ${busy ? 'disabled' : ''}>Actuar</button>
+    </div>`;
+  }
+  el.innerHTML = html;
+
+  $('#btn-retry')?.addEventListener('click', runTurn);
+  $('#btn-roll')?.addEventListener('click', doRoll);
+  $('#btn-over-back')?.addEventListener('click', openLobby);
+  el.querySelectorAll('[data-opt]').forEach((b) => b.addEventListener('click', () => sendAction(save.options[Number(b.dataset.opt)])));
+  const input = $('#action-input');
+  if (input) {
+    $('#btn-send').addEventListener('click', () => sendAction(input.value));
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAction(input.value); }
+    });
+    if (!busy && window.matchMedia('(min-width: 861px)').matches) input.focus();
+  }
+}
+
+function renderSide() {
+  const body = $('#tab-body');
+  if (sideTab === 'mapa') {
+    body.innerHTML = `<div class="map-wrap"><canvas id="map-canvas"></canvas></div>
+      <h3>Lugares visitados</h3>
+      <ul class="places">${current.lugares.map((l) => `<li class="${l.nombre === current.state.ubicacion ? 'current' : ''}">${escapeHtml(l.nombre)}</li>`).join('')}</ul>`;
+    drawWorldMap($('#map-canvas'), current.id, current.lugares, current.state.ubicacion);
+  } else if (sideTab === 'pnj') {
+    const list = Object.entries(current.pnj).sort(([a], [b]) => current.presentes.includes(b) - current.presentes.includes(a));
+    body.innerHTML = list.length
+      ? `<div class="npc-grid">${list.map(([k, n], i) => `
+          <div class="npc-card ${current.presentes.includes(k) ? 'present' : ''}" data-key="${escapeHtml(k)}" style="animation-delay:${i * 50}ms">
+            ${npcPortrait(current, n)}
+            <div class="n">${escapeHtml(n.nombre)}</div>
+            <div class="r">${escapeHtml(n.rol)}${n.hostil ? ' · <span style="color:var(--red)">hostil</span>' : ''}</div>
+          </div>`).join('')}</div>`
+      : '<div class="muted">Aún no se conoce a nadie.</div>';
+  } else {
+    body.innerHTML = heroSheetHTML(current);
+  }
+}
+
+function heroSheetHTML(save) {
+  const { character: c, state: s, quests, campaign } = save;
+  const cls = CLASSES[c.clase];
+  const hpPct = Math.round((s.pv / s.pvMax) * 100);
+  const prevXp = XP_LEVELS[s.nivel - 1] || 0;
+  const nextXp = XP_LEVELS[s.nivel];
+  const xpPct = nextXp ? Math.round(((s.xp - prevXp) / (nextXp - prevXp)) * 100) : 100;
+  return `
+    <div class="hero-head">
+      <div class="portrait" id="hero-portrait">${heroPortrait(save)}</div>
+      <div><div class="name">${escapeHtml(c.nombre)}</div>${c.epiteto ? `<div class="epithet">${escapeHtml(c.epiteto)}</div>` : ''}<div class="muted">${escapeHtml(genero(c.raza, c.sexo))} ${escapeHtml(genero(c.clase, c.sexo))}<br>Nivel ${s.nivel} · ${escapeHtml(c.alineamiento)}</div></div>
+    </div>
+    <h3>Puntos de vida</h3>
+    <div class="bar hp"><div style="width:${hpPct}%"></div></div>
+    <div class="kv"><span>${s.pv} / ${s.pvMax}</span><span class="muted">Dado de golpe d${cls.dado}</span></div>
+    <h3>Experiencia</h3>
+    <div class="bar xp"><div style="width:${Math.max(0, Math.min(100, xpPct))}%"></div></div>
+    <div class="kv"><span>${s.xp} PX</span><span class="muted">${nextXp ? 'Siguiente: ' + nextXp : 'Nivel máximo'}</span></div>
+    <h3>Atributos</h3>
+    <div class="stats-roll">${STATS.map((k) => `
+      <div class="stat-box" title="${STAT_NAMES[k]}${cls.prof.includes(k) ? ' (competente)' : ''}">
+        <div class="k">${k}${cls.prof.includes(k) ? ' ★' : ''}</div><div class="v">${c.atributos[k]}</div><div class="m">${signed(mod(c.atributos[k]))}</div>
+      </div>`).join('')}</div>
+    <div class="kv" style="margin-top:8px"><span class="muted">Competencia</span><span>+${profBonus(s.nivel)}</span></div>
+    <div class="kv"><span class="muted">Oro</span><span>🪙 ${s.oro}</span></div>
+    <h3>Inventario</h3>
+    <ul>${s.inventario.map((i) => `<li>${escapeHtml(i)}</li>`).join('') || '<li class="muted">Vacío</li>'}</ul>
+    <h3>Misiones</h3>
+    <ul>${quests.slice(0, 1).concat(quests.slice(1).slice(-5)).map((q) => `<li>${q.principal ? '<b>' + escapeHtml(q.texto) + '</b>' : escapeHtml(q.texto)}</li>`).join('')}</ul>
+    ${c.trasfondo ? `<h3>Trasfondo</h3><div style="font-size:.95rem">${escapeHtml(c.trasfondo)}</div>` : ''}
+    ${c.rasgos ? `<h3>Personalidad</h3><div style="font-size:.95rem">${escapeHtml(c.rasgos)}</div>` : ''}
+    <h3>El mundo</h3>
+    <div class="muted" style="font-size:.95rem">${escapeHtml(campaign.mundo)}</div>`;
+}
+
+function applyFx() {
+  const fx = pendingFx;
+  pendingFx = null;
+  if (!fx) return;
+  const portrait = $('#hero-portrait');
+  if (fx.pv < 0) {
+    $('#side').classList.add('shake');
+    portrait?.classList.add('hit-flash');
+    setTimeout(() => $('#side').classList.remove('shake'), 500);
+  } else if (fx.pv > 0) {
+    portrait?.classList.add('heal-flash');
+  }
+  if (fx.niveles > 0) toast(`ᛟ ¡Nivel ${current.state.nivel}! ᛟ`);
+}
+
+function focusNpc(key) {
+  sideTab = 'pnj';
+  vistaMovil = 'panel';
+  renderSide();
+  updateNav();
+  const card = document.querySelector(`.npc-card[data-key="${CSS.escape(key)}"]`);
+  if (card) { card.scrollIntoView({ block: 'center', behavior: 'smooth' }); card.classList.add('flash'); }
+}
+
+// Lobby, importación y exportación
+function openLobby() {
+  current = null;
+  scene?.stop();
+  const saves = Object.values(getSaves()).sort((a, b) => b.updated - a.updated);
+  $('#saves').innerHTML = saves.length ? saves.map((s, i) => `
+    <div class="card save-card" style="animation-delay:${i * 70}ms">
+      <div class="portrait">${heroPortrait(s)}</div>
+      <div style="flex:1;min-width:0">
+        <h3>${escapeHtml(s.character.nombre)}</h3>${s.character.epiteto ? `<div class="epithet" style="margin:-2px 0 6px">${escapeHtml(s.character.epiteto)}</div>` : ''}
+        <div class="meta">
+          ${escapeHtml(genero(s.character.raza, s.character.sexo))} ${escapeHtml(genero(s.character.clase, s.character.sexo))} · Nivel ${s.state.nivel}${s.over ? ' · <span style="color:var(--red)">Finalizada</span>' : ''}<br>
+          <i>${escapeHtml(s.campaign.titulo)}</i><br>
+          ${s.turn} turnos · ${new Date(s.updated).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}
+        </div>
+        <div class="row" style="gap:8px">
+          <button class="primary small" data-play="${s.id}">${s.over ? 'Ver' : 'Continuar'}</button>
+          <button class="small" data-export="${s.id}">Exportar</button>
+          <button class="small danger" data-delete="${s.id}">Borrar</button>
+        </div>
+      </div>
+    </div>`).join('')
+    : `<div class="card muted" style="text-align:center;grid-column:1 / -1;max-width:520px;justify-self:center">Aún no hay aventureros. Se puede crear el primero con «Nuevo personaje».</div>`;
+
+  document.querySelectorAll('[data-play]').forEach((b) => b.addEventListener('click', () => openGame(b.dataset.play)));
+  document.querySelectorAll('[data-export]').forEach((b) => b.addEventListener('click', () => exportSave(b.dataset.export)));
+  document.querySelectorAll('[data-delete]').forEach((b) => b.addEventListener('click', () => deleteSave(b.dataset.delete)));
+  showScreen('screen-lobby');
+}
+
+function exportSave(id) {
+  const save = getSaves()[id];
+  if (!save) return;
+  const blob = new Blob([JSON.stringify(save, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `cronica-${save.character.nombre.toLowerCase().replace(/[^a-z0-9áéíóúñ]+/gi, '-')}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function deleteSave(id) {
+  const saves = getSaves();
+  if (!saves[id]) return;
+  if (!confirm(`¿Borrar definitivamente la partida de ${saves[id].character.nombre}?`)) return;
+  delete saves[id];
+  saveJSON(SAVES_KEY, saves);
+  openLobby();
+}
+
+async function importSave(file) {
+  try {
+    const save = JSON.parse(await file.text());
+    if (!save?.character || !save?.campaign || !Array.isArray(save.history)) throw new Error('El archivo no es una partida válida.');
+    const saves = getSaves();
+    if (saves[save.id] && !confirm('Ya existe esta partida. ¿Sobrescribirla?')) return;
+    save.id = save.id || uid();
+    persist(save);
+    openLobby();
+  } catch (e) {
+    alert('No se ha podido importar: ' + e.message);
+  }
+}
+
+// Eventos globales
+$('#btn-new').addEventListener('click', openCreate);
+$('#btn-import').addEventListener('click', () => $('#import-file').click());
+$('#import-file').addEventListener('change', (e) => { if (e.target.files[0]) importSave(e.target.files[0]); e.target.value = ''; });
+$('#btn-reroll').addEventListener('click', () => { draftScores = rollScores($('#c-class').value); renderDraft(); });
+$('#btn-look').addEventListener('click', () => { draftLook = uid(); draftOverrides = {}; renderDraft(); });
+document.querySelectorAll('[data-look]').forEach((el) => el.addEventListener('input', () => { draftOverrides[el.dataset.look] = el.value; renderDraft(); }));
+$('#c-race').addEventListener('change', renderDraft);
+$('#c-sex').addEventListener('change', renderDraft);
+$('#c-class').addEventListener('change', () => { draftScores = rollScores($('#c-class').value); renderDraft(); });
+$('#btn-start').addEventListener('click', startAdventure);
+document.querySelectorAll('[data-nav]').forEach((b) => b.addEventListener('click', () => navigate(b.dataset.nav)));
+$('#nav-toggle').addEventListener('click', () => setNavPlegada(!document.body.classList.contains('nav-plegada')));
+window.addEventListener('resize', updateNav);
+try { setNavPlegada(localStorage.getItem('cronicas.navPlegada') === '1'); } catch { /* Sin almacenamiento disponible */ }
+$('#scene-npcs').addEventListener('click', (e) => { const el = e.target.closest('[data-npc]'); if (el) focusNpc(el.dataset.npc); });
+
+scene = new SceneRenderer($('#scene-canvas'));
+startEmbers();
+openLobby();
+</script>
+</body>
+</html>
