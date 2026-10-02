@@ -1,0 +1,45 @@
+{
+  "rules": {
+    "salas": {
+      "$codigo": {
+        ".read": "auth != null",
+        "meta": {
+          ".write": "auth != null && ((!data.exists() && newData.child('anfitrion').val() === auth.uid) || (data.exists() && root.child('salas').child($codigo).child('jugadores').child(auth.uid).exists()))",
+          ".validate": "newData.hasChildren(['anfitrion', 'creada', 'estado'])",
+          "anfitrion": { ".validate": "!data.exists() || newData.val() === data.val()" },
+          "estado": { ".validate": "newData.val() === 'espera' || newData.val() === 'juego' || newData.val() === 'fin'" }
+        },
+        "jugadores": {
+          "$uid": {
+            ".write": "auth != null && (auth.uid === $uid || root.child('salas').child($codigo).child('jugadores').child(auth.uid).exists())",
+            ".validate": "newData.hasChildren(['personaje', 'estado']) && newData.parent().parent().child('meta').exists()",
+            "personaje": {
+              "nombre": { ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 40" }
+            },
+            "conectado": { ".validate": "newData.isBoolean()" }
+          }
+        },
+        "historia": {
+          "$entrada": {
+            ".write": "auth != null && newData.parent().parent().child('jugadores').child(auth.uid).exists()",
+            ".validate": "newData.hasChildren(['t', 'text']) && newData.child('text').isString() && newData.child('text').val().length <= 5000"
+          }
+        },
+        "ronda": {
+          ".write": "auth != null && root.child('salas').child($codigo).child('jugadores').child(auth.uid).exists()",
+          "acciones": {
+            "$uid": { ".validate": "newData.isString() && newData.val().length <= 500 && (newData.val() === data.val() || root.child('salas').child($codigo).child('ronda').child('fase').val() === 'acciones')" }
+          }
+        },
+        "mundo": {
+          ".write": "auth != null && root.child('salas').child($codigo).child('jugadores').child(auth.uid).exists()"
+        },
+        "campana": {
+          ".write": "auth != null && root.child('salas').child($codigo).child('jugadores').child(auth.uid).exists()",
+          ".validate": "newData.hasChild('titulo')"
+        },
+        "$otro": { ".validate": false }
+      }
+    }
+  }
+}
