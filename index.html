@@ -397,7 +397,7 @@
     <h2 class="salas-titulo">Salas</h2>
     <div id="salas-lista" class="saves"></div>
   </div>
-  <div class="muted version">Versión 15</div>
+  <div class="muted version">Versión 16</div>
   <input type="file" id="import-file" accept="application/json" hidden>
 </section>
 
@@ -2087,7 +2087,8 @@ class SceneRenderer {
   frame(t) {
     const ctx = this.ctx, W = this.c.width, H = this.c.height;
     if (!W || !H || !this.layer.width) return;
-    const dt = this.last ? Math.min(.05, t - this.last) : .016;
+    // Tras reconstruir la escena el reloj vuelve a 0: el paso nunca puede ser negativo.
+    const dt = this.last && t > this.last ? Math.min(.05, t - this.last) : .016;
     this.last = t;
     const { clima, momento } = this.escena;
     ctx.drawImage(this.layer, 0, 0);
@@ -2182,7 +2183,7 @@ class SceneRenderer {
           p.y -= 14 * p.v * dt * sc; p.x += Math.sin(t + p.p) * 6 * dt * sc;
           if (p.y < p.y0 - H * .35) { p.y = p.y0; p.x = p.x0; }
           ctx.fillStyle = `rgba(160,160,160,${.25 * (1 - (p.y0 - p.y) / (H * .35))})`;
-          ctx.beginPath(); ctx.arc(p.x, p.y, (3 + (p.y0 - p.y) * .08) * sc, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(0, 3 + (p.y0 - p.y) * .08) * sc, 0, Math.PI * 2); ctx.fill();
           break;
       }
     }
